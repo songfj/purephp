@@ -1,6 +1,6 @@
 <?php
 
-class ctrl_main {
+class ctrl_welcome {
 
     /**
      * 
