@@ -1,0 +1,6 @@
+allow from all
+
+<IfModule mod_rewrite.c>
+## disable rewrite for this folder
+  RewriteEngine Off
+</IfModule>

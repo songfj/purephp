@@ -1,0 +1,17 @@
+
+*~
+.DS_Store
+.DS_Store*
+private.xml
+private.properties
+config.properties
+__TwigTemplate_*
+ehthumbs.db
+Thumbs.db
+*.log
+*.cache
+*.cache.html
+/nbproject/
+/app/data/logs/*
+/content/uploads/*
+*.sqlite
