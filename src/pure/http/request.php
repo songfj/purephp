@@ -137,7 +137,8 @@ class pure_http_request {
         $this->method = isset($_SERVER['HTTP_X_METHOD']) ? strtoupper($_SERVER['HTTP_X_METHOD']) : (
                 isset($_SERVER['REQUEST_METHOD']) ? strtoupper($_SERVER['REQUEST_METHOD']) : '');
 
-        $this->protocol = (isset($_SERVER['HTTPS']) and ($_SERVER['HTTPS'] != 'off')) ? 'https' : 'http';
+        $this->protocol = (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) and ($_SERVER['HTTP_X_FORWARDED_PROTO']=='https')) ?
+                'https' : ((isset($_SERVER['HTTPS']) and ($_SERVER['HTTPS'] != 'off')) ? 'https' : 'http');
 
         $this->host = isset($_SERVER["HTTP_HOST"]) ? $_SERVER["HTTP_HOST"] : "";
         $this->port = isset($_SERVER["SERVER_PORT"]) ? $_SERVER["SERVER_PORT"] : 80;

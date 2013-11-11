@@ -193,7 +193,7 @@ class pure_http_client {
 
         $headers2 = array();
         if (!isset($headers["User-Agent"])) {
-            $headers["User-Agent"] = "ANIDCORE " . Ac::VERSION;
+            $headers["User-Agent"] = "PUREPHP Framework";
         }
 
         foreach ($headers as $k => $v) {
