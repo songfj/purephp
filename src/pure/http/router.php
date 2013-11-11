@@ -65,11 +65,9 @@ class pure_http_router {
     /**
      * 
      * @param pure_http_request $req
-     * @return pure_http_route|false the first matched route
      */
     public function dispatch($req) {
         $this->matchedRoutes = $this->match($req->method, $req->path);
-        return $this->next();
     }
 
     /**

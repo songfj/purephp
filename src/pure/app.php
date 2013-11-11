@@ -223,7 +223,7 @@ class pure_app {
             }
             if ($route != false) {
                 if (count($route->callbacks) == 0) { // No callbacks? so, next
-                    $route = $this->prepareRoute();
+                    //$route = $this->prepareRoute();
                 }
                 $cb = array_shift($route->callbacks);
                 call_user_func_array($cb, $args);
@@ -238,11 +238,10 @@ class pure_app {
     public function start() {
         $this->dispatcher()->trigger('app:beforeStart', array(), $this);
         $this->dispatcher()->trigger('app:beforeDispatch', array(), $this);
-        $route = $this->router()->dispatch($this->request());
-        $this->prepareRoute($route);
+        $this->router()->dispatch($this->request());
         $this->dispatcher()->trigger('app:dispatch', array(), $this);
         // start loop
-        $this->next($route);
+        $this->next();
         $this->dispatcher()->trigger('app:start', array(), $this);
     }
 

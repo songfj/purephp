@@ -191,6 +191,22 @@ class pure {
     }
 
     /**
+     * Environment variable getter/setter
+     * 
+     * @param string $name
+     * @param string $strValue
+     * @return string|false
+     */
+    public static function env($name, $strValue = null) {
+        if (func_num_args() > 1) {
+            $_ENV[$name] = $strValue;
+            putenv($name . '=' . $strValue);
+        } else {
+            return getenv($name);
+        }
+    }
+
+    /**
      * Gets or sets application environment variables (instances, flags, etc), 
      * 
      * @param string $name
@@ -402,7 +418,6 @@ class pure {
         self::flash()->write($level, $message, $context);
         self::redirect($url, $status);
     }
-
 
     public static function mail($to, $subject, $body, array $headers = array('MIME-Version: 1.0', 'Content-Type: text/html;charset=utf-8'), array $parameters = array()) {
         return mail($to, $subject, $body, implode("\r\n", $headers), implode("\r\n", $parameters));
