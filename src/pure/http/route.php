@@ -57,13 +57,13 @@ class pure_http_route {
 
     public function __construct(array $data = array()) {
         $data = pure_arr::merge(array(
-            'path' => false,
-            'method' => false,
-            'callbacks' => array(),
-            'keys' => array(),
-            'regexp' => false,
-            'options' => array('sensitive' => false, 'strict' => false)
-                ), $data);
+                    'path' => false,
+                    'method' => false,
+                    'callbacks' => array(),
+                    'keys' => array(),
+                    'regexp' => false,
+                    'options' => array('sensitive' => false, 'strict' => false)
+                        ), $data);
 
         $this->path = $data['path'];
         $this->method = $data['method'];
@@ -71,6 +71,15 @@ class pure_http_route {
         $this->keys = $data['keys'];
         $this->regexp = $data['regexp'];
         $this->options = $data['options'];
+    }
+
+    /**
+     * 
+     * @param string $name
+     * @return string
+     */
+    public function param($name) {
+        return isset($this->params[$name]) ? $this->params[$name] : false;
     }
 
     /**

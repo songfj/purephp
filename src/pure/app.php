@@ -185,6 +185,12 @@ class pure_app {
         $this->registry['middleware'][] = $callback;
     }
 
+    /**
+     * General application data (registry of variables not considered engines nor global config)
+     * @param string $name
+     * @param mixed $value
+     * @return mixed
+     */
     public function data($name, $value = null) {
         if (func_num_args() > 1) {
             $this->registry['data'][$name] = $value;
