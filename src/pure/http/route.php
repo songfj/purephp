@@ -56,12 +56,12 @@ class pure_http_route {
     public $options = array('sensitive' => false, 'strict' => false);
 
     public function __construct(array $data = array()) {
-        $data = array_merge(array(
-            'path' => '',
-            'method' => 'GET',
+        $data = pure_arr::merge(array(
+            'path' => false,
+            'method' => false,
             'callbacks' => array(),
             'keys' => array(),
-            'regexp' => '',
+            'regexp' => false,
             'options' => array('sensitive' => false, 'strict' => false)
                 ), $data);
 

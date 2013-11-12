@@ -209,26 +209,21 @@ class pure_app {
     /**
      * Executes the given or the next middleware (first) or route
      * @param pure_http_route $route
+     * @return mixed|false The callable return value or false
      */
-    public function next($route = null) {
-        $args = array($this->request(), $this->response(), $route, $this);
-
+    public function next() {
+        $result = false;
         if (count($this->registry['middleware']) > 0) { // First execute all middleware
             $middleware = array_shift($this->registry['middleware']);
-            call_user_func_array($middleware, $args);
-        } else {
-            // Then execute route matchings
-            if ($route == null) {
-                $route = $this->prepareRoute();
-            }
+            $result = call_user_func_array($middleware, array($this->request(), $this->response(), new pure_http_route(), $this));
+        } else { // Then execute all router bindings
+            $route = $this->prepareRoute();
             if ($route != false) {
-                if (count($route->callbacks) == 0) { // No callbacks? so, next
-                    //$route = $this->prepareRoute();
-                }
                 $cb = array_shift($route->callbacks);
-                call_user_func_array($cb, $args);
+                $result = call_user_func_array($cb, array($this->request(), $this->response(), $route, $this));
             }
         }
+        return $result ? $result : false;
     }
 
     /**
