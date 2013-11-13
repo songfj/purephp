@@ -36,10 +36,12 @@ class pure_app {
      */
     protected static $currentInstance = false;
 
-    public function __construct(pure_loader $loader, array $paths, $name = 'default') {
+    public function __construct(pure_loader $loader, array $paths, $name = 'default', array $config = array()) {
         if (isset(self::$instances[$name])) {
             throw new pure_error('Instances cannot have same names');
         }
+
+        $this->config = $config;
 
         $ds = DIRECTORY_SEPARATOR;
         $rootpath = realpath(dirname($_SERVER['SCRIPT_FILENAME'])) . $ds;
@@ -47,6 +49,7 @@ class pure_app {
         $paths = array_merge(array(
             'root' => $rootpath,
             'app' => $rootpath . "app{$ds}",
+            'config' => $rootpath . "app{$ds}config{$ds}",
             'vendor' => $rootpath . "app{$ds}vendor{$ds}",
             'data' => $rootpath . "app{$ds}data{$ds}",
             'logs' => $rootpath . "app{$ds}data{$ds}logs{$ds}",
@@ -57,10 +60,6 @@ class pure_app {
                 ), $paths);
 
         $this->registry['engines']['loader'] = $loader;
-
-        if (!is_array($this->config)) {
-            $this->config = array();
-        }
 
         // Paths
         $this->registry['paths'] = $paths;
@@ -87,6 +86,14 @@ class pure_app {
         // urls
         $this->registry['urls']['domain'] = $this->request()->protocol . '://' . $this->request()->host . '/';
         $this->registry['urls']['base'] = $this->registry['urls']['root'] = trim($this->registry['urls']['domain'] . ltrim($this->request()->basePath, '/'), '/') . '/';
+
+        // Rewrite engine base URL
+        if ($this->config('useIndexFile') === true) {
+            $this->registry['urls']['baserw'] = $this->registry['urls']['base'] . 'index.php/';
+        } else {
+            $this->registry['urls']['baserw'] = $this->registry['urls']['base'];
+        }
+
         $this->registry['urls']['content'] = $this->registry['urls']['base'] . 'content/';
         $this->registry['urls']['assets'] = $this->registry['urls']['base'] . 'content/assets/';
         $this->registry['urls']['uploads'] = $this->registry['urls']['base'] . 'content/uploads/';
@@ -105,13 +112,33 @@ class pure_app {
             self::$currentInstance = $name;
         }
 
-        if (is_readable($this->registry['paths']['app'] . 'config.php')) {
-            $user_config = include $this->registry['paths']['app'] . 'config.php';
+        // (Optional) Environment name
+        if (!isset($this->config['APPLICATION_ENV'])) {
+            $this->config['APPLICATION_ENV'] = getenv('APPLICATION_ENV');
+        }
+
+        if (empty($this->config['APPLICATION_ENV']) or ($this->config['APPLICATION_ENV'] == false)) {
+            $this->config['APPLICATION_ENV'] = 'default';
+        }
+
+        // (Optional) Config file based on environment
+        $user_config = array();
+        
+        if (is_readable($this->registry['paths']['config'] . $this->config['APPLICATION_ENV'] . '.php')) {
+            $user_config = include $this->registry['paths']['config'] . $this->config['APPLICATION_ENV'] . '.php';
+        } elseif (is_readable($this->registry['paths']['config'] . 'default.php')) {
+            $user_config = include $this->registry['paths']['config'] . 'default.php';
         }
         if (!is_array($user_config)) {
             $user_config = array();
         }
+
         $this->config = pure_arr::merge($this->config, $user_config);
+
+        // (Optional) Init file
+        if (is_readable($this->registry['paths']['app'] . 'init.php')) {
+            include $this->registry['paths']['app'] . 'init.php';
+        }
     }
 
     public function config($name, $value = null) {

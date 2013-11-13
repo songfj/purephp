@@ -119,12 +119,12 @@ class pure {
     }
 
     /**
-     * Predefined urls: domain, base, content, assets, uploads, views, current, current_query (with query string), previous, ...
+     * Predefined urls: domain, base, baserw (default), content, assets, uploads, views, current, current_query (with query string), previous, ...
      * @param string $name
      * @param string $value
      * @return string
      */
-    public static function url($name = 'base', $value = null) {
+    public static function url($name = 'baserw', $value = null) {
         if (func_num_args() > 1) {
             return self::app()->url($name, $value);
         } else {
@@ -151,7 +151,7 @@ class pure {
         if (is_array($query)) {
             $q = self::req()->query($query, $queryExclude, $escape);
         }
-        return self::url('base') . (empty($path) ? '' : ($path . '/')) . $q;
+        return self::url('baserw') . (empty($path) ? '' : ($path . '/')) . $q;
     }
 
     public static function linkTo($path = '', $content = '', $attributes = array(), $query = false, $queryExclude = array(), $escape = true) {

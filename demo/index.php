@@ -1,4 +1,5 @@
 <?php
+
 // Specify your custom app class or leave it as pure_app
 $appClass = 'pure_app';
 
@@ -48,6 +49,7 @@ ini_set('error_log', $rootpath . 'app/php_error.log');
 $app = new $appClass($loader, array(
     'root' => $rootpath,
     'app' => $rootpath . 'app/',
+    'config' => $rootpath . 'app/config/',
     'vendor' => $rootpath . 'app/vendor/',
     'data' => $rootpath . 'app/data/',
     'logs' => $rootpath . 'app/data/logs/',
@@ -55,7 +57,7 @@ $app = new $appClass($loader, array(
     'assets' => $rootpath . 'content/assets/',
     'uploads' => $rootpath . 'content/uploads/',
     'views' => $rootpath . 'content/views/'
-        ), 'default');
+        ), 'default', array('useIndexFile' => false));
 
 $app->start();
 ?>

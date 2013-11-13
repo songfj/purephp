@@ -1,5 +1,8 @@
 allow from all
 
+# Set default Application Environment name
+SetEnv APPLICATION_ENV develop
+
 AddDefaultCharset utf-8
 
 # Force UTF-8 for a number of file formats
@@ -7,14 +10,6 @@ AddCharset utf-8 .atom .css .js .json .rss .vtt .xml
 
 # Change directory default index file order
 DirectoryIndex index.php index.html
-
-# Using the rewrite engine is optional
-<IfModule mod_rewrite.c>
-    RewriteEngine On
-    RewriteCond %{REQUEST_FILENAME} !-f
-    RewriteCond %{REQUEST_FILENAME} !-d
-    RewriteRule .* index.php [QSA]
-</IfModule>
 
 # ----------------------------------------------------------------------
 # Start rewrite engine
@@ -36,7 +31,7 @@ DirectoryIndex index.php index.html
     RewriteEngine On
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteCond %{REQUEST_FILENAME} !-d
-    RewriteRule .* index.php?route=$0 [QSA]
+    RewriteRule .* index.php [QSA]
 </IfModule>
 
 # Custom Error documents
