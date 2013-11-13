@@ -422,5 +422,14 @@ class pure {
     public static function mail($to, $subject, $body, array $headers = array('MIME-Version: 1.0', 'Content-Type: text/html;charset=utf-8'), array $parameters = array()) {
         return mail($to, $subject, $body, implode("\r\n", $headers), implode("\r\n", $parameters));
     }
+    
+    public static function dieMessage($message = '500 Internal Server Error', $status = '500 Internal Server Error') {
+        if (strpos(strtolower(PHP_SAPI), 'cgi') !== false) {
+            header("Status: " . $status);
+        } else {
+            header($_SERVER['SERVER_PROTOCOL'] . " " . $status);
+        }
+        die('<html><head></head><body><h1>' . $message . '</h1></body></html>');
+    }
 
 }

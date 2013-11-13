@@ -59,5 +59,10 @@ $app = new $appClass($loader, array(
     'views' => $rootpath . 'content/views/'
         ), 'default', array('useIndexFile' => false));
 
-$app->start();
+try {
+    $app->start();
+} catch (Exception $exc) {
+    error_log($exc->getTraceAsString());
+    pure::dieMessage();
+}
 ?>
