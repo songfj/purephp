@@ -91,6 +91,7 @@ class pure_app {
         $this->registry['engines']['response'] = pure_http_response::getInstance();
         $this->registry['engines']['router'] = new pure_http_router();
         $this->registry['engines']['templating'] = new pure_tpl($this->path('views'));
+        $this->registry['engines']['mail'] = new pure_mail();
 
         // urls
         $this->registry['urls']['domain'] = $this->request()->protocol . '://' . $this->request()->host . '/';
@@ -194,6 +195,14 @@ class pure_app {
      */
     public function templating() {
         return $this->engine('templating');
+    }
+
+    /**
+     * 
+     * @return pure_imail|pure_mail
+     */
+    public function mail() {
+        return $this->engine('mail');
     }
 
     /**

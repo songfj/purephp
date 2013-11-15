@@ -39,6 +39,14 @@ class pure {
     }
 
     /**
+     * 
+     * @return pure_imail|pure_mail
+     */
+    public static function mail() {
+        return self::app()->mail();
+    }
+
+    /**
      * Listens to an event
      * 
      * @param string $event The event name
@@ -346,6 +354,13 @@ class pure {
         return self::req()->param($key, $default, $validation);
     }
 
+    /**
+     * @return pure_html
+     */
+    public static function html() {
+        return pure_html::getInstance();
+    }
+
     public static function log($message, $level = 'DEBUG', $filename = 'app.log', $add_date = true) {
         $message = $level . ': ' . $message;
         if ($add_date == true) {
@@ -391,13 +406,6 @@ class pure {
     }
 
     /**
-     * @return pure_html
-     */
-    public static function html() {
-        return pure_html::getInstance();
-    }
-
-    /**
      * Inmediately redirect to the given url with optional status code defaulting to 302 "Found"
      * @param string $url
      * @param int $status
@@ -419,10 +427,6 @@ class pure {
         self::redirect($url, $status);
     }
 
-    public static function mail($to, $subject, $body, array $headers = array('MIME-Version: 1.0', 'Content-Type: text/html;charset=utf-8'), array $parameters = array()) {
-        return mail($to, $subject, $body, implode("\r\n", $headers), implode("\r\n", $parameters));
-    }
-    
     public static function dieMessage($message = '500 Internal Server Error', $status = '500 Internal Server Error') {
         if (strpos(strtolower(PHP_SAPI), 'cgi') !== false) {
             header("Status: " . $status);
