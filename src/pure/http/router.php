@@ -80,8 +80,13 @@ class pure_http_router {
             foreach ($this->currentRoute->keys as $param) {
                 $this->currentRoute->params[$param["name"]] = $param["value"];
             }
+
+            // Trigger event
+            pure::trigger('router::next', array('route' => $this->currentRoute), $this);
             return $this->currentRoute;
         }
+        // Trigger event
+        pure::trigger('router::next', array('route' => false), $this);
         return false;
     }
 
@@ -96,7 +101,7 @@ class pure_http_router {
      */
     public function map($method, $path, $callback, array $options = array()) {
         if (!is_callable($callback)) {
-            throw new InvalidArgumentException('The argument is not a callable function: '.print_r($callback, true));
+            throw new InvalidArgumentException('The argument is not a callable function: ' . print_r($callback, true));
         }
         $method = $this->formatMethod($method);
         $basepath = explode(':', $path, 2);

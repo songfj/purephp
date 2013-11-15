@@ -77,6 +77,15 @@ class pure_app {
         // Set error log file
         ini_set('error_log', $this->registry['paths']['logs'] . 'php_error.log');
 
+
+        if (!isset(self::$instances[$name])) {
+            self::$instances[$name] = $this;
+        }
+
+        if (self::$currentInstance === false) {
+            self::$currentInstance = $name;
+        }
+
         $this->registry['engines']['dispatcher'] = new pure_dispatcher();
         $this->registry['engines']['request'] = pure_http_request::getInstance();
         $this->registry['engines']['response'] = pure_http_response::getInstance();
@@ -103,15 +112,6 @@ class pure_app {
                 (!empty($this->request()->query) ? '?' . http_build_query($this->request()->query) : '');
         $this->registry['urls']['previous'] = $this->request()->previousUrl();
 
-
-        if (!isset(self::$instances[$name])) {
-            self::$instances[$name] = $this;
-        }
-
-        if (self::$currentInstance === false) {
-            self::$currentInstance = $name;
-        }
-
         // (Optional) Environment name
         if (!isset($this->config['APPLICATION_ENV'])) {
             $this->config['APPLICATION_ENV'] = getenv('APPLICATION_ENV');
@@ -123,7 +123,7 @@ class pure_app {
 
         // (Optional) Config file based on environment
         $user_config = array();
-        
+
         if (is_readable($this->registry['paths']['config'] . $this->config['APPLICATION_ENV'] . '.php')) {
             $user_config = include $this->registry['paths']['config'] . $this->config['APPLICATION_ENV'] . '.php';
         } elseif (is_readable($this->registry['paths']['config'] . 'default.php')) {

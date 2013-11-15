@@ -24,6 +24,24 @@ class pure_tpl implements pure_itpl {
     public $globals = array();
 
     /**
+     *
+     * @var array Last loaded template options
+     */
+    public $options = array();
+
+    /**
+     *
+     * @var array Last loaded template locals
+     */
+    public $locals = array();
+
+    /**
+     * Last loaded template content
+     * @var string
+     */
+    public $content = null;
+
+    /**
      * 
      * @param string $path Default file path
      * @param string $extension Default file extension
@@ -62,22 +80,33 @@ class pure_tpl implements pure_itpl {
         } else {
             $locals = array();
         }
-        extract($locals);
-        
-        $tpl_file = file_exists($tpl) ? $tpl : ($this->path . $tpl . $this->extension);
-        $tpl_id = pure_str::slugize($tpl);
-        
+        $this->options = $options;
+        $this->locals = $locals;
+        $this->locals['tpl_name'] = $tpl;
+        $this->locals['tpl_file'] = file_exists($tpl) ? $tpl : ($this->path . $tpl . $this->extension);
+        $this->locals['tpl_id'] = pure_str::slugize($tpl);
+
+        // Trigger event
+        pure::trigger('tpl::before_load', array(), $this);
+
+        extract($this->locals);
+
         $cwd = realpath(getcwd());
-        
+
         // Change dir so the includes are always relative to this file
-        chdir(realpath(dirname($tpl_file)));
-        
-        include $tpl_file;
-        $content = ob_get_clean();
-        
+        chdir(realpath(dirname($this->locals['tpl_file'])));
+
+        include $this->locals['tpl_file'];
+
+        $this->content = ob_get_clean();
+
+        // Trigger event
+        pure::trigger('tpl::load', array(), $this);
+
         // restore current working dir
         chdir($cwd);
-        return $content;
+
+        return $this->content;
     }
 
     public function render($tpl, array $locals = array(), array $options = array()) {

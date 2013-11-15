@@ -116,9 +116,13 @@ class pure_http_request {
      */
     protected static $instance = null;
 
-    public function __construct($populateOriginal = true) {
-        if ($populateOriginal === true) {
-            $this->populateOriginal();
+    /**
+     * 
+     * @param boolean $populate Populate original request?
+     */
+    public function __construct($populate = true) {
+        if ($populate === true) {
+            $this->populate();
         }
     }
 
@@ -133,11 +137,14 @@ class pure_http_request {
         return self::$instance;
     }
 
-    public function populateOriginal() {
+    public function populate() {
+        // Trigger event
+        pure::trigger('request::before_populate', array(), $this);
+
         $this->method = isset($_SERVER['HTTP_X_METHOD']) ? strtoupper($_SERVER['HTTP_X_METHOD']) : (
                 isset($_SERVER['REQUEST_METHOD']) ? strtoupper($_SERVER['REQUEST_METHOD']) : '');
 
-        $this->protocol = (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) and ($_SERVER['HTTP_X_FORWARDED_PROTO']=='https')) ?
+        $this->protocol = (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) and ($_SERVER['HTTP_X_FORWARDED_PROTO'] == 'https')) ?
                 'https' : ((isset($_SERVER['HTTPS']) and ($_SERVER['HTTPS'] != 'off')) ? 'https' : 'http');
 
         $this->host = isset($_SERVER["HTTP_HOST"]) ? $_SERVER["HTTP_HOST"] : "";
@@ -194,6 +201,10 @@ class pure_http_request {
 
         $this->ip = $_SERVER["REMOTE_ADDR"];
         $this->segments = explode('/', $this->path);
+
+        // Trigger event
+        pure::trigger('request::populate', array(), $this);
+
         return $this;
     }
 
@@ -350,8 +361,8 @@ class pure_http_request {
     public function isWebFile($exts = 'css|js|jpg|png|gif|swf|svg|otf|eot|woff|ttf|avi|mp3|mp4|mpg|mov|mpeg|mkv|ogg|ogv|oga|aac|wmv|wma|rm|webm|webp|pdf|zip|gz|tar|rar|7z') {
         return (preg_match("/\.({$exts})$/", $this->extension) != false);
     }
-    
-    public function previousUrl(){
+
+    public function previousUrl() {
         return $this->header('Referer');
     }
 

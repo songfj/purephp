@@ -223,43 +223,55 @@ class pure_http_response {
     }
 
     public function send($body = null, $status = null, $contentType = null) {
-        if ($body === null) {
-            $body = $this->body;
+        if ($body !== null) {
+            $this->body = $body;
         }
 
-        if ($status === null) {
-            $status = $this->status;
+        if ($status !== null) {
+            $this->status = $status;
         }
 
         if ($contentType !== null) {
             $this->contentType($contentType);
         }
+
         $this->header("Content-Length", strlen($this->body));
 
-        $this->sendStatusHeader($status)
+        // Trigger event
+        pure::trigger('response::before_send', array(), $this);
+
+        $this->sendStatusHeader($this->status)
                 ->sendHeaders()
                 ->sendCookieHeaders();
 
         if ($this->canHaveBody()) {
-            print $body;
+            print $this->body;
         }
+
+        // Trigger event
+        pure::trigger('response::send', array(), $this);
 
         return $this;
     }
 
     public function json($body = null, $status = null, $contentType = "text/json") {
-        if ($body === null) {
-            $body = $this->body;
+        if ($body !== null) {
+            $this->body = $body;
         }
 
-        if (!is_array($body) and !is_object($body)) {
-            $body = array('_' => $body);
+        if (!is_array($this->body) and !is_object($this->body)) {
+            $this->body = array('content' => $this->body);
         }
 
         return $this->send(json_encode($body), $status, $contentType);
     }
 
-    public function sendHeaders() {
+    public function send404() {
+        $this->sendStatusHeader(404);
+        exit();
+    }
+
+    protected function sendHeaders() {
         foreach ($this->headers as $h => $v) {
             if (is_array($v)) {
                 foreach ($v as $vv) {
@@ -272,7 +284,7 @@ class pure_http_response {
         return $this;
     }
 
-    public function sendCookieHeaders() {
+    protected function sendCookieHeaders() {
         foreach ($this->cookies as $name => $cookies) {
             foreach ($cookies as $i => $cookie) {
                 setcookie($cookie["name"], $cookie["value"], $cookie["expire"], $cookie["path"], $cookie["domain"], $cookie["secure"], $cookie["httponly"]);
@@ -286,7 +298,7 @@ class pure_http_response {
         return $this;
     }
 
-    public function sendStatusHeader($status) {
+    protected function sendStatusHeader($status) {
         $statusText = $status . " " . self::$messages[$status];
         if (strpos(strtolower(PHP_SAPI), 'cgi') !== false) {
             header("Status: " . $statusText);
@@ -294,11 +306,6 @@ class pure_http_response {
             header($this->serverProtocol . " " . $statusText);
         }
         return $this;
-    }
-
-    public function send404NotFound() {
-        $this->sendStatusHeader(404);
-        exit();
     }
 
     /**

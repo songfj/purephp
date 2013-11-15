@@ -22,3 +22,10 @@ Apache Bench is used in all tests (ab -n 2000 -c 10 {url}) in a 2011 iMac with 4
 * PHP 5.2.13 + APC :  ~850 req/sec (~1.1ms*)
 
 (*) Time per request, mean across all concurrent requests
+
+## Triggered events
+
+* request::before_populate, request::populate
+* router::next
+* tpl::before_load, tpl::load
+* request::before_send, request::send
