@@ -198,6 +198,10 @@ class pure {
         }
     }
 
+    public static function flag($name, $enable = null) {
+        return self::app()->flag($name, $enable);
+    }
+
     /**
      * Environment variable getter/setter
      * 

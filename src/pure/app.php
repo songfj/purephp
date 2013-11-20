@@ -16,6 +16,7 @@ class pure_app {
         'engines' => array(),
         'middleware' => array(),
         'data' => array(),
+        'flags' => array()
     );
 
     /**
@@ -141,6 +142,25 @@ class pure_app {
             $this->registry['engines'][$name] = $value;
         }
         return isset($this->registry['engines'][$name]) ? $this->registry['engines'][$name] : false;
+    }
+
+    public function flag($name, $enable = null) {
+        if (is_bool($enable)) {
+            if (($enable === false) and $this->hasFlag($name)) {
+                unset($this->registry['flags'][$name]);
+            } elseif ($enable === true) {
+                $this->registry['flags'][$name] = true;
+            }
+        }
+        return $this->hasFlag($name) ? $this->registry['flags'][$name] : false;
+    }
+
+    public function hasFlag($name) {
+        return isset($this->registry['flags'][$name]);
+    }
+
+    public function getFlags() {
+        return $this->registry['flags'];
     }
 
     /**
