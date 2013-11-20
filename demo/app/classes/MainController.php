@@ -10,6 +10,7 @@ class MainController {
      * @param app $app
      */
     public static function index($req, $resp, $route, $app) {
+        pure::flash()->write('success', 'This is a flash message test.');
         pure::send('home');
     }
 

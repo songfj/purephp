@@ -87,3 +87,4 @@
             <div class="header">
                 <h3 class="text-muted">LOGO</h3>
             </div>
+            <?php include 'notifications.php'; ?>

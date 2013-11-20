@@ -1,6 +1,8 @@
 <?php
-
 // Application initialization file
+
+// Start a PHP session
+pure::session()->start();
 
 // Set default content type
 pure::resp()->contentType('text/html', 'utf-8');
