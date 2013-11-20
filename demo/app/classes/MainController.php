@@ -1,6 +1,6 @@
 <?php
 
-class Page_Welcome {
+class MainController {
 
     /**
      * 
