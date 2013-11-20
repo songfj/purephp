@@ -46,6 +46,7 @@ class pure_app {
         $ds = DIRECTORY_SEPARATOR;
         $rootpath = realpath(dirname($_SERVER['SCRIPT_FILENAME'])) . $ds;
 
+        // Merge default paths with project ones
         $paths = array_merge(array(
             'root' => $rootpath,
             'app' => $rootpath . "app{$ds}",
@@ -64,20 +65,6 @@ class pure_app {
         // Paths
         $this->registry['paths'] = $paths;
 
-        try {
-            foreach ($this->registry['paths'] as $p) {
-                if (!is_array($p) and !is_dir($p)) {
-                    mkdir($p, 0755, true);
-                }
-            }
-        } catch (Exception $exc) {
-            error_log($exc->getTraceAsString());
-        }
-
-        // Set error log file
-        ini_set('error_log', $this->registry['paths']['logs'] . 'php_error.log');
-
-
         if (!isset(self::$instances[$name])) {
             self::$instances[$name] = $this;
         }
@@ -93,7 +80,7 @@ class pure_app {
         $this->registry['engines']['templating'] = new pure_tpl($this->path('views'));
         $this->registry['engines']['mail'] = new pure_mail();
 
-        // urls
+        // URLs
         $this->registry['urls']['domain'] = $this->request()->protocol . '://' . $this->request()->host . '/';
         $this->registry['urls']['base'] = $this->registry['urls']['root'] = trim($this->registry['urls']['domain'] . ltrim($this->request()->basePath, '/'), '/') . '/';
 
@@ -273,13 +260,13 @@ class pure_app {
      * executes the route lop
      */
     public function start() {
-        $this->dispatcher()->trigger('app:beforeStart', array(), $this);
-        $this->dispatcher()->trigger('app:beforeDispatch', array(), $this);
+        $this->dispatcher()->trigger('app.before_start', array(), $this);
+        $this->dispatcher()->trigger('app.before_dispatch', array(), $this);
         $this->router()->dispatch($this->request());
-        $this->dispatcher()->trigger('app:dispatch', array(), $this);
+        $this->dispatcher()->trigger('app.dispatch', array(), $this);
         // start loop
         $this->next();
-        $this->dispatcher()->trigger('app:start', array(), $this);
+        $this->dispatcher()->trigger('app.start', array(), $this);
     }
 
     protected function prepareRoute($route = null) {

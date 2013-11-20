@@ -82,11 +82,11 @@ class pure_http_router {
             }
 
             // Trigger event
-            pure::trigger('router::next', array('route' => $this->currentRoute), $this);
+            pure::trigger('router.next', array('route' => $this->currentRoute), $this);
             return $this->currentRoute;
         }
         // Trigger event
-        pure::trigger('router::next', array('route' => false), $this);
+        pure::trigger('router.next', array('route' => false), $this);
         return false;
     }
 

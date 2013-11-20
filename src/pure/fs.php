@@ -33,6 +33,33 @@ class pure_fs {
             rmdir($dir);
         }
     }
+    
+    /**
+     * Alias function for php native rename()
+     * 
+     * @param string $oldname
+     * @param string $newname
+     * @param resource $context
+     * @return bool TRUE on success or FALSE on failure.
+     */
+    public static function rename($oldname, $newname, $context = null){
+        $args = func_get_args();
+        return call_user_func_array('rename', $args);
+    }
+    
+    
+    /**
+     * Alias function for php native rename()
+     * 
+     * @param string $oldname
+     * @param string $newname
+     * @param resource $context
+     * @return bool TRUE on success or FALSE on failure.
+     */
+    public static function move($oldname, $newname, $context = null){
+        $args = func_get_args();
+        return call_user_func_array('rename', $args);
+    }
 
     /**
      * Gets file metadata inside first comment (as ini file format)

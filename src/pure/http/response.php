@@ -238,7 +238,7 @@ class pure_http_response {
         $this->header("Content-Length", strlen($this->body));
 
         // Trigger event
-        pure::trigger('response::before_send', array(), $this);
+        pure::trigger('response.before_send', array(), $this);
 
         $this->sendStatusHeader($this->status)
                 ->sendHeaders()
@@ -249,7 +249,7 @@ class pure_http_response {
         }
 
         // Trigger event
-        pure::trigger('response::send', array(), $this);
+        pure::trigger('response.send', array(), $this);
 
         return $this;
     }

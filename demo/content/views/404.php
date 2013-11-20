@@ -1,5 +1,8 @@
 <?php include 'header.php'; ?>
-<div class="container">
-    <h1 class="alert alert-danger">404 Page Not Found</h1>
+<div class="alert alert-danger">
+    <h1 style="margin-top: 0">Error</h1>
+    <p class="lead">
+        404 Page Not Found
+    </p>
 </div>
 <?php include 'footer.php'; ?>

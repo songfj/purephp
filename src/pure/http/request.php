@@ -139,7 +139,7 @@ class pure_http_request {
 
     public function populate() {
         // Trigger event
-        pure::trigger('request::before_populate', array(), $this);
+        pure::trigger('request.before_populate', array(), $this);
 
         $this->method = isset($_SERVER['HTTP_X_METHOD']) ? strtoupper($_SERVER['HTTP_X_METHOD']) : (
                 isset($_SERVER['REQUEST_METHOD']) ? strtoupper($_SERVER['REQUEST_METHOD']) : '');
@@ -203,7 +203,7 @@ class pure_http_request {
         $this->segments = explode('/', $this->path);
 
         // Trigger event
-        pure::trigger('request::populate', array(), $this);
+        pure::trigger('request.populate', array(), $this);
 
         return $this;
     }

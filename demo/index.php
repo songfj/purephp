@@ -35,18 +35,7 @@ ini_set('session.cookie_httponly', true);
 $ds = DIRECTORY_SEPARATOR;
 $rootpath = realpath(dirname(__FILE__)) . $ds;
 
-// require_once $rootpath . 'app/vendor/purephp/src/pure/loader.php'; // this is the right place to have purephp core, uncommented for this demo
-require_once $rootpath . '../src/pure/loader.php'; // only for this themo
-
-$loader = pure_loader::getDefault();
-$loader->register();
-$loader->add(null, array($rootpath . 'app/vendor/', $rootpath . 'app/classes/'));
-
-// Set initial error log file
-ini_set('error_log', $rootpath . 'app/php_error.log');
-
-/* @var $app pure_app */
-$app = new $appClass($loader, array(
+$paths = array(
     'root' => $rootpath,
     'app' => $rootpath . 'app/',
     'config' => $rootpath . 'app/config/',
@@ -57,7 +46,27 @@ $app = new $appClass($loader, array(
     'assets' => $rootpath . 'content/assets/',
     'uploads' => $rootpath . 'content/uploads/',
     'views' => $rootpath . 'content/views/'
-        ), 'default', array('useIndexFile' => false));
+);
+
+// Create paths if don't exist (optional)
+//foreach ($paths as $p) {
+//    if (!is_dir($p)) {
+//        mkdir($p, 0755, true);
+//    }
+//}
+
+
+// Set initial error log file
+ini_set('error_log', $paths['logs'] . 'php_error.log');
+
+require_once $paths['vendor'] . 'purephp/src/pure/loader.php';
+
+$loader = pure_loader::getDefault();
+$loader->register();
+$loader->add(null, array($paths['vendor'], $paths['app'] . 'classes'));
+
+/* @var $app pure_app */
+$app = new $appClass($loader, $paths, 'default', array('useIndexFile' => false));
 
 try {
     $app->start();

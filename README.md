@@ -1,6 +1,17 @@
 # PURE Framework
 
-** A lightweight PHP 5.2 RESTFul framework based on expressjs **
+**A lightweight PHP 5.2+ RESTFul framework based on expressjs**
+
+## Requirements
+
+* Apache server
+* PHP 5.2 or greater
+
+## Setup
+
+* Download or clone the source code
+* Navigate to install.php and follow the instructions
+* For getting started read the demo app source code
 
 ## Features
 
@@ -23,9 +34,16 @@ Apache Bench is used in all tests (ab -n 2000 -c 10 {url}) in a 2011 iMac with 4
 
 (*) Time per request, mean across all concurrent requests
 
-## Triggered events
+## Events
 
-* request::before_populate, request::populate
-* router::next
-* tpl::before_load, tpl::load
-* request::before_send, request::send
+You can trigger, bind or unbind events using pure::trigger, pure::on and
+pure::off respectively.
+
+Those events are triggered by the framework (usually in this order):
+
+* request.before_populate, request.populate
+* app.before_start, app.before_dispatch
+* router.next
+* tpl.before_load, tpl.load
+* request.before_send, request.send
+* app.dispatch, app.start
