@@ -394,7 +394,7 @@ class pure {
      */
     public static function session() {
         if (self::engine('session') == false) {
-            self::engine('session', new pure_session());
+            self::engine('session', new pure_session(pure::path('root')));
         }
         return self::engine('session');
     }

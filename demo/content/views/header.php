@@ -80,6 +80,14 @@
                     border-bottom: 0;
                 }
             }
+            .notifications-panel{
+                margin:0 0 20px 0;
+                padding:0;
+            }
+            .notifications-panel li{
+                list-style: none;
+                margin:0 0 10px 0;
+            }
         </style>
     </head>
     <body>
