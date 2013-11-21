@@ -47,3 +47,6 @@ Those events are triggered by the framework (usually in this order):
 * tpl.before_load, tpl.load
 * request.before_send, request.send
 * app.dispatch, app.start
+
+[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/mjaalnir/purephp/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
+
