@@ -56,8 +56,8 @@ class pure_flash {
     }
 
     public function hasMessages() {
-
-        return count($this->session[$this->session_prefix . $this->channel]) > 0;
+        return is_array($this->session[$this->session_prefix . $this->channel]) and
+                (count($this->session[$this->session_prefix . $this->channel]) > 0);
     }
 
     public function clearMessages() {
