@@ -2,6 +2,9 @@
 
 **A lightweight PHP 5.2+ RESTFul framework based on expressjs**
 
+[![Build Status](https://travis-ci.org/mjaalnir/purephp.png)](https://travis-ci.org/mjaalnir/purephp)
+[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/mjaalnir/purephp/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
+
 ## Requirements
 
 * Apache server
@@ -48,6 +51,4 @@ Those events are triggered by the framework (usually in this order):
 * tpl.before_load, tpl.load
 * request.before_send, request.send
 * app.dispatch, app.start
-
-[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/mjaalnir/purephp/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
 

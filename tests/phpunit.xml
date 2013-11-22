@@ -11,9 +11,4 @@
             <directory suffix="Test.php">./src</directory>
         </testsuite>
     </testsuites>
-
-    <php>
-        <!-- Integration Test Variables -->
-        <var name="PURE_TESTMODE" value="true" />
-    </php>
 </phpunit>
