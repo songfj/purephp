@@ -74,7 +74,6 @@ class pure_app {
             self::$currentInstance = $name;
         }
 
-        $this->registry['engines']['dispatcher'] = new pure_dispatcher();
         $this->registry['engines']['request'] = pure_http_request::getInstance();
         $this->registry['engines']['response'] = pure_http_response::getInstance();
         $this->registry['engines']['router'] = new pure_http_router();
@@ -161,14 +160,6 @@ class pure_app {
 
     public function getFlags() {
         return $this->registry['flags'];
-    }
-
-    /**
-     * 
-     * @return pure_dispatcher
-     */
-    public function dispatcher() {
-        return $this->engine('dispatcher');
     }
 
     /**
@@ -280,13 +271,13 @@ class pure_app {
      * executes the route lop
      */
     public function start() {
-        $this->dispatcher()->trigger('app.before_start', array(), $this);
-        $this->dispatcher()->trigger('app.before_dispatch', array(), $this);
+        pure_dispatcher::getInstance()->trigger('app.before_start', array(), $this);
+        pure_dispatcher::getInstance()->trigger('app.before_dispatch', array(), $this);
         $this->router()->dispatch($this->request());
-        $this->dispatcher()->trigger('app.dispatch', array(), $this);
+        pure_dispatcher::getInstance()->trigger('app.dispatch', array(), $this);
         // start loop
         $this->next();
-        $this->dispatcher()->trigger('app.start', array(), $this);
+        pure_dispatcher::getInstance()->trigger('app.start', array(), $this);
     }
 
     protected function prepareRoute($route = null) {

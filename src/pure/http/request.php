@@ -139,7 +139,7 @@ class pure_http_request {
 
     public function populate() {
         // Trigger event
-        pure::trigger('request.before_populate', array(), $this);
+        pure_dispatcher::getInstance()->trigger('request.before_populate', array(), $this);
 
         $script_name = (isset($_SERVER["SCRIPT_NAME"]) ? $_SERVER["SCRIPT_NAME"] : '');
 
@@ -205,7 +205,7 @@ class pure_http_request {
         $this->segments = explode('/', $this->path);
 
         // Trigger event
-        pure::trigger('request.populate', array(), $this);
+        pure_dispatcher::getInstance()->trigger('request.populate', array(), $this);
 
         return $this;
     }

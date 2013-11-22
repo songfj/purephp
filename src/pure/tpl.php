@@ -87,7 +87,7 @@ class pure_tpl implements pure_itpl {
         $this->locals['tpl_id'] = pure_str::slugize($tpl);
 
         // Trigger event
-        pure::trigger('tpl.before_load', array(), $this);
+        pure_dispatcher::getInstance()->trigger('tpl.before_load', array(), $this);
 
         extract($this->locals);
 
@@ -101,7 +101,7 @@ class pure_tpl implements pure_itpl {
         $this->content = ob_get_clean();
 
         // Trigger event
-        pure::trigger('tpl.load', array(), $this);
+        pure_dispatcher::getInstance()->trigger('tpl.load', array(), $this);
 
         // restore current working dir
         chdir($cwd);

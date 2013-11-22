@@ -10,6 +10,23 @@ class pure_dispatcher {
     public $emitted = array();
 
     /**
+     *
+     * @var pure_dispatcher 
+     */
+    protected static $instance = null;
+
+    /**
+     * 
+     * @return pure_dispatcher
+     */
+    public static function getInstance() {
+        if (self::$instance == null) {
+            self::$instance = new self();
+        }
+        return self::$instance;
+    }
+
+    /**
      * Listens to an event
      * 
      * @param string $event The event name

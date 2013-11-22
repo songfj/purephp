@@ -1,7 +1,8 @@
 <?php
 
 /**
- * Facade class
+ * Facade class. If not changed using pure_app::setInstance,
+ * all the facade methods references the default app instance
  */
 class pure {
 
@@ -55,7 +56,7 @@ class pure {
      * @param mixed $emitter Object to listen to
      */
     public static function on($event, $handler, $priority = 0, $emitter = null) {
-        return self::app()->dispatcher()->on($event, $handler, $priority, $emitter);
+        return pure_dispatcher::getInstance()->on($event, $handler, $priority, $emitter);
     }
 
     /**
@@ -65,7 +66,7 @@ class pure {
      * @return int Total of unregistered handlers
      */
     public static function off($event, $emitter = null) {
-        return self::app()->dispatcher()->off($event, $emitter);
+        return pure_dispatcher::getInstance()->off($event, $emitter);
     }
 
     /**
@@ -76,7 +77,7 @@ class pure {
      * @return int The total handlers that listened to the event
      */
     public static function trigger($event, array $context = array(), $emitter = null) {
-        return self::app()->dispatcher()->trigger($event, $context, $emitter);
+        return pure_dispatcher::getInstance()->trigger($event, $context, $emitter);
     }
 
     /**
