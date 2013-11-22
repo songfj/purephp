@@ -5,7 +5,7 @@
 ## Requirements
 
 * Apache server
-* PHP 5.2 or greater
+* PHP 5.2 or later (PHP 5.3.3 or later for unit tests)
 
 ## Setup
 
@@ -25,7 +25,8 @@
 
 ## Benchmarks
 
-Apache Bench is used in all tests (ab -n 2000 -c 10 {url}) in a 2011 iMac with 4GB of DDR3 RAM
+Apache Bench is used in all tests (ab -n 2000 -c 10 {url}) in
+a 2011 iMac with 4GB of DDR3 RAM using MAMP
 
 * PHP 5.4.4 :  ~300 req/sec (~3.2ms*)
 * PHP 5.4.4 + APC :  ~900 req/sec (~1.1ms*)

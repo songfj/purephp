@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit backupGlobals="false"
+         backupStaticAttributes="false"
+         colors="true"
+         convertErrorsToExceptions="true"
+         convertNoticesToExceptions="true"
+         convertWarningsToExceptions="true"
+         bootstrap="./bootstrap.php">
+    <testsuites>
+        <testsuite name="PURE Framework Test Suite">
+            <directory suffix="Test.php">./src</directory>
+        </testsuite>
+    </testsuites>
+
+    <php>
+        <!-- Integration Test Variables -->
+        <var name="PURE_TESTMODE" value="true" />
+    </php>
+</phpunit>

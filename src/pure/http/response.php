@@ -110,7 +110,7 @@ class pure_http_response {
     protected static $instance;
 
     public function __construct($serverProtocol = null) {
-        $this->serverProtocol = !empty($serverProtocol) ? $serverProtocol : $_SERVER["SERVER_PROTOCOL"];
+        $this->serverProtocol = !empty($serverProtocol) ? $serverProtocol : (isset($_SERVER["SERVER_PROTOCOL"]) ? $_SERVER["SERVER_PROTOCOL"] : 'HTTP/1.1');
     }
 
     /**

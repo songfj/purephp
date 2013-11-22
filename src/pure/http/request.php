@@ -141,6 +141,8 @@ class pure_http_request {
         // Trigger event
         pure::trigger('request.before_populate', array(), $this);
 
+        $script_name = (isset($_SERVER["SCRIPT_NAME"]) ? $_SERVER["SCRIPT_NAME"] : '');
+
         $this->method = isset($_SERVER['HTTP_X_METHOD']) ? strtoupper($_SERVER['HTTP_X_METHOD']) : (
                 isset($_SERVER['REQUEST_METHOD']) ? strtoupper($_SERVER['REQUEST_METHOD']) : '');
 
@@ -162,18 +164,18 @@ class pure_http_request {
 
         // Base path
         $this->basePath = '';
-        if (isset($_SERVER['SCRIPT_NAME'])) {
-            $this->basePath = trim(str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'])), '/ ');
+        if (!empty($script_name)) {
+            $this->basePath = trim(str_replace('\\', '/', dirname($script_name)), '/ ');
         }
 
         // Path
-        $this->path = explode("?", trim($_SERVER["REQUEST_URI"], " /"), 2);
+        $this->path = explode("?", trim(isset($_SERVER["REQUEST_URI"]) ? $_SERVER["REQUEST_URI"] : '', " /"), 2);
         $this->path = $this->path[0];
         if (!empty($this->basePath)) {
             $this->path = preg_replace("/^" . str_replace('/', '\/', $this->basePath) . "/", "", $this->path);
         }
 
-        $this->path = preg_replace("/^" . preg_quote(basename($_SERVER["SCRIPT_NAME"])) . "\/?/", "", trim($this->path, " /"));
+        $this->path = preg_replace("/^" . preg_quote(basename($script_name)) . "\/?/", "", trim($this->path, " /"));
 
         // Extension
         $ext = explode(".", $this->path);
@@ -199,7 +201,7 @@ class pure_http_request {
             }
         }
 
-        $this->ip = $_SERVER["REMOTE_ADDR"];
+        $this->ip = (isset($_SERVER["REMOTE_ADDR"]) ? $_SERVER["REMOTE_ADDR"] : false);
         $this->segments = explode('/', $this->path);
 
         // Trigger event
