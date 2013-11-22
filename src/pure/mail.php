@@ -6,14 +6,14 @@
 class pure_mail implements pure_imail {
 
     protected $contentType = 'text/html';
-    protected $charset = 'utf-8';
+    protected $charset = 'UTF-8';
     protected $headers = array(
         'MIME-Version' => '1.0'
     );
 
     public function clear() {
         $this->contentType = 'text/html';
-        $this->charset = 'utf-8';
+        $this->charset = 'UTF-8';
         $this->headers = array(
             'MIME-Version' => '1.0'
         );
@@ -67,14 +67,13 @@ class pure_mail implements pure_imail {
 
     public function send($to, $subject, $body, array $parameters = array()) {
         if (!isset($this->headers['Content-Type'])) {
-            $this->headers['Content-Type'] = $this->contentType . ';' . $this->charset;
+            $this->headers['Content-Type'] = $this->contentType . '; charset=' . strtoupper($this->charset);
         }
         $headers = array();
         foreach ($this->headers as $n => $v) {
             $headers[] = $n . ': ' . $v;
         }
-        //die('headers='.implode("\r\n", $headers));
-        return mail($to, $subject, $body, implode("\r\n", $headers), implode("\r\n", $parameters));
+        return mail($to, '=?UTF-8?B?' . base64_encode($subject) . '?=', $body, implode("\r\n", $headers), implode("\r\n", $parameters));
     }
 
     public function setBcc($value) {
