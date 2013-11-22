@@ -9,7 +9,7 @@ php:
 # last 5.5:
   - 5.5
   
-script: chmod +x tests/phpunit.sh && cd tests && ./phpunit.sh
+script: cd tests && phpunit -c phpunit.xml --coverage-text --colors
 
 notifications:
     on_success: never
