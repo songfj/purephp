@@ -3,8 +3,9 @@
 class pure_date {
 
     public static function utc($time = null) {
-        if ($time == null)
+        if ($time == null) {
             $time = time();
+        }
         return date('Y-m-d\\TH:i:s\\.000\\Z', $time - date('Z'));
     }
 
@@ -12,7 +13,7 @@ class pure_date {
         return date($format, strtotime($str_timestamp));
     }
 
-    public static function daysBetween($from, $to, $return_ts = false) {
+    public static function daysInBetween($from, $to, $return_ts = false) {
         $start = strtotime($from);
         $end = strtotime($to);
         $num_days = round(($end - $start) / 86400 /* day in seconds */) + 1;
@@ -27,8 +28,8 @@ class pure_date {
             return $days;
     }
 
-    public static function inRange($date, $from, $to) {
-        $times = self::daysBetween($from, $to);
+    public static function isInRange($date, $from, $to) {
+        $times = self::daysInBetween($from, $to);
         return in_array(strtotime($date), $times);
     }
 
@@ -76,7 +77,7 @@ class pure_date {
         $month = !empty($month) ? (int) $month : (int) date('n');
 
         if ($month < 1 or $month > 12) {
-            throw new UnexpectedValueException('Invalid input for month given.');
+            throw new UnexpectedValueException('Invalid input for given month.');
         } elseif ($month == 2) {
             if ($year % 400 == 0 or ($year % 4 == 0 and $year % 100 != 0)) {
                 return 29;
@@ -125,30 +126,6 @@ class pure_date {
         }
 
         return $difference . ' ' . $periods[$j];
-    }
-
-    /**
-     *
-     * @param float $start_microtime
-     * @param float $end_microtime
-     * @param boolean $detailed_result
-     * @return float|string 
-     */
-    public static function elapsedTime($start_microtime, $end_microtime = null, $decimal_precision = 3, $in_ms = false) {
-        if ($end_microtime == null) {
-            $end_microtime = microtime(true);
-        }
-
-        if ($in_ms)
-            $decimal_precision+=3;
-
-        $elapsed_time = round(($end_microtime - $start_microtime), $decimal_precision);
-
-        if ($in_ms) {
-            return $elapsed_time * 1000;
-        } else {
-            return $elapsed_time;
-        }
     }
 
 }

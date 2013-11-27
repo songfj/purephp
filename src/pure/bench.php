@@ -33,9 +33,7 @@ class pure_bench {
      * @return string|float
      */
     public function getTime($raw = false, $format = null) {
-        $elapsed = $this->end_time - $this->start_time;
-
-        return $raw ? $elapsed : self::readableElapsedTime($elapsed, $format);
+        return $raw ? ($this->end_time - $this->start_time) : self::getFormattedElapsedTime($this->start_time, $this->end_time, $format);
     }
 
     /**
@@ -46,7 +44,7 @@ class pure_bench {
      * @return string|float
      */
     public function getMemoryUsage($raw = false, $format = null) {
-        return $raw ? $this->memory_usage : self::readableSize($this->memory_usage, $format);
+        return $raw ? $this->memory_usage : self::getFormattedMemorySize($this->memory_usage, $format);
     }
 
     /**
@@ -59,18 +57,18 @@ class pure_bench {
     public function getMemoryPeak($raw = false, $format = null) {
         $memory = memory_get_peak_usage(true);
 
-        return $raw ? $memory : self::readableSize($memory, $format);
+        return $raw ? $memory : self::getFormattedMemorySize($memory, $format);
     }
 
     /**
-     * Returns a human readable memory size
+     * Returns a human readable memory / disc size
      *
-     * @param   int    $size
+     * @param   int    $size size in bytes
      * @param   string $format   The format to display (printf format)
      * @param   int    $round
      * @return  string
      */
-    public static function readableSize($size, $format = null, $round = 3) {
+    public static function getFormattedMemorySize($size, $format = null, $round = 3) {
         $mod = 1024;
 
         if (is_null($format)) {
@@ -91,13 +89,19 @@ class pure_bench {
     }
 
     /**
-     * Returns a human readable elapsed time
      *
-     * @param  float $microtime
-     * @param  string  $format   The format to display (printf format)
-     * @return string
+     * @param float $start_microtime
+     * @param float $end_microtime
+     * @param string $format The format to display (printf format)
+     * @param int $round Decimal precision
+     * @return string 
      */
-    public static function readableElapsedTime($microtime, $format = null, $round = 3) {
+    public static function getFormattedElapsedTime($start_microtime, $end_microtime = null, $format = null, $round = 3) {
+        if (empty($end_microtime)) {
+            $end_microtime = microtime(true);
+        }
+        $microtime = $end_microtime - $start_microtime;
+
         if (is_null($format)) {
             $format = '%.3f%s';
         }

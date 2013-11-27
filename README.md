@@ -11,7 +11,7 @@ The majority of my customers' hostings are not supporting PHP 5.3 yet and I need
 for small projects, a framework which you just unzip and works with zero or one-step installation.
 
 I felt unconfortable with other PHP 5.2 frameworks out there, that wasn't giving me the freedom I needed, specially before
-using other frameworks like expressjs or Slim for a while: decoupled framework and engines, facade mode, middleware, RESTful driven, ...
+using other frameworks like expressjs or Slim for a while: decoupled framework and engines, facade mode, middleware, RESTful driven, events, ...
 
 So I ported many expressjs concepts and route regular expression engine to the PHP world.
 
