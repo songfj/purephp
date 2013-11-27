@@ -399,7 +399,7 @@ class pure_http_request {
     }
 
     /**
-     * Return the value of param name when present, otherwise return false.
+     * Return the value of $key when present, otherwise return false.
      * 
      * Lookup is performed in the following order: $req->body, $req->query
      * 

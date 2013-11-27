@@ -5,10 +5,23 @@
 [![Build Status](https://travis-ci.org/mjaalnir/purephp.png)](https://travis-ci.org/mjaalnir/purephp)
 [![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/mjaalnir/purephp/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
 
+## Why PHP 5.2?
+
+The majority of my customers' hostings are not supporting PHP 5.3 yet and I needed a very simple and easy to understand framework
+for small projects, a framework which you just unzip and works with zero or one-step installation.
+
+I felt unconfortable with other PHP 5.2 frameworks out there, that wasn't giving me the freedom I needed, specially before
+using other frameworks like expressjs or Slim for a while: decoupled framework and engines, facade mode, middleware, RESTful driven, ...
+
+So I ported many expressjs concepts and route regular expression engine to the PHP world.
+
+With PurePHP you can build your own framework, with the directories or engines that best fit your requirements, or just embed it
+for using as a part of an existing project, like Wordpress.
+
 ## Requirements
 
 * Apache server
-* PHP 5.2 or later (PHP 5.3.3 or later for unit tests)
+* PHP 5.2 or later
 
 ## Setup
 
@@ -60,5 +73,5 @@ Other events (outside of the default app life cycle) :
 
 ## To-Do
 
+* Port expressjs param binding engine
 * CLI Mode / executable
-* URL manipulation
