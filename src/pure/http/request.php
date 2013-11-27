@@ -363,6 +363,10 @@ class pure_http_request {
     public function isWebFile($exts = 'css|js|jpg|png|gif|swf|svg|otf|eot|woff|ttf|avi|mp3|mp4|mpg|mov|mpeg|mkv|ogg|ogv|oga|aac|wmv|wma|rm|webm|webp|pdf|zip|gz|tar|rar|7z') {
         return (preg_match("/\.({$exts})$/", $this->extension) != false);
     }
+    
+    public function isCli(){
+        return (php_sapi_name() == "cli");
+    }
 
     public function previousUrl() {
         return $this->header('Referer');

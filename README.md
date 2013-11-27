@@ -52,3 +52,8 @@ Those events are triggered by the framework (usually in this order):
 * request.before_send, request.send
 * app.dispatch, app.start
 
+
+## To-Do
+
+* CLI Mode / executable
+* URL manipulation

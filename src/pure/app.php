@@ -46,6 +46,7 @@ class pure_app {
 
         $ds = DIRECTORY_SEPARATOR;
         $rootpath = realpath(dirname($_SERVER['SCRIPT_FILENAME'])) . $ds;
+        $libpath = realpath(dirname(__FILE__).'/../../') . $ds;
 
         // Merge default paths with project ones
         $paths = array_merge(array(
@@ -58,7 +59,8 @@ class pure_app {
             'content' => $rootpath . "content{$ds}",
             'assets' => $rootpath . "content{$ds}assets{$ds}",
             'uploads' => $rootpath . "content{$ds}uploads{$ds}",
-            'views' => $rootpath . "content{$ds}views{$ds}"
+            'views' => $rootpath . "content{$ds}views{$ds}",
+            'purephp' => $libpath
                 ), $paths);
 
         $this->registry['engines']['loader'] = $loader;
