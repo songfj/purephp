@@ -28,6 +28,8 @@ DirectoryIndex index.php index.html
 <IfModule mod_rewrite.c>
     Options +FollowSymlinks
   # Options +SymLinksIfOwnerMatch
+  # Tell PHP that mod rewrite is enabled
+    SetEnv APPLICATION_REWRITE_ENGINE on
     RewriteEngine On
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteCond %{REQUEST_FILENAME} !-d

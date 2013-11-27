@@ -53,6 +53,11 @@ Those events are triggered by the framework (usually in this order):
 * app.dispatch, app.start
 
 
+Other events (outside of the default app life cycle) :
+
+* auth.session_login, auth.session_logout
+
+
 ## To-Do
 
 * CLI Mode / executable

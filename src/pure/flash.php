@@ -23,6 +23,12 @@ class pure_flash {
      */
     protected $session_prefix;
 
+    /**
+     *
+     * @var pure_flash 
+     */
+    protected static $instance = null;
+
     public function __construct(pure_session $session, $channel = "default") {
         $this->session = $session;
         $this->channel = $channel;
@@ -30,6 +36,17 @@ class pure_flash {
         if(!isset($this->session[$this->session_prefix . $this->channel])){
             $this->session[$this->session_prefix . $this->channel] = array();
         }
+    }
+
+    /**
+     * 
+     * @return pure_flash
+     */
+    public static function getInstance() {
+        if (self::$instance == null) {
+            self::$instance = new self(pure_session::getInstance());
+        }
+        return self::$instance;
     }
 
     /**

@@ -66,7 +66,8 @@ $loader->register();
 $loader->add(null, array($paths['vendor'], $paths['app'] . 'classes'));
 
 /* @var $app pure_app */
-$app = new $appClass($loader, $paths, 'default', array('useIndexFile' => false));
+$hasModRewrite = (isset($_SERVER['APPLICATION_REWRITE_ENGINE']) && ($_SERVER['APPLICATION_REWRITE_ENGINE'] == 'on'));
+$app = new $appClass($loader, $paths, 'default', array('useIndexFile' => ($hasModRewrite == false), 'hasModRewrite' => $hasModRewrite));
 
 try {
     $app->start();
