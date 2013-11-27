@@ -10,8 +10,6 @@
 class pure_auth_session {
 
     protected $config = array(
-        'use_session' => true,
-        'use_cookie' => true,
         'session_var' => '_pureauth',
         'cookie_name' => '_pureauth',
         'cookie_lifetime' => 604800, // 7 days
