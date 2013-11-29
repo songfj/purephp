@@ -63,6 +63,10 @@ class pure_str {
         return str_replace(array('_', '.', ',', ' ', ':'), '-', $uuid);
     }
 
+    public static function html2nl($html, $htmlTags = array('<br>', '<br/>', '<br />', '<hr>', '<hr/>', '<hr />', '</div>', '</p>', '</tr>')) {
+        return strip_tags(strip_tags(str_replace($htmlTags, "\n", $html)));
+    }
+
     public static function toHex($str) {
         $hex = '';
         for ($i = 0; $i < strlen($str); $i++) {
