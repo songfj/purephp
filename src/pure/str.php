@@ -38,16 +38,47 @@ class pure_str {
     }
 
     /**
-     * Genera un uniqid que nos asegure que sea diferente cada vez (en este servidor).
-     * Para asegurarnos, cada vez que se llama esta función se realiza un micro sleep de 10 microsegundos,
-     * además de concatenar un salt (opcional)
      * 
-     * @param string $salt Texto opcional a concatenar para generar el SHA256
-     * @return string el resultado hasheado con SHA256 (64 caracteres)
+     * @param string $salt
+     * @param bool $appendMicrotime
+     * @param bool $appendPID
+     * @param bool $appendHostName
+     * @return string Hexadecimal string (variable length)
      */
-    public static function uniqid($salt = '') {
-        usleep(10);
-        return hash('sha256', microtime() . "\n" . $salt);
+    public static function uniqid($salt = '', $appendMicrotime = true, $appendPID = true, $appendHostName = true) {
+        $uuid = uniqid(mt_rand() . $salt, true);
+        if ($appendMicrotime === true) {
+            usleep(5);
+            $uuid.='.' . microtime(true);
+        }
+        if (($appendPID === true) and (function_exists('getmypid'))) {
+            $uuid.='.' . getmypid();
+        }
+        if (($appendHostName === true) and isset($_SERVER['SERVER_NAME']) and !empty($_SERVER['SERVER_NAME'])) {
+            $uuid.='.' . self::toHex($_SERVER['SERVER_NAME']);
+            if (isset($_SERVER['SERVER_PORT']) and !empty($_SERVER['SERVER_PORT'])) {
+                $uuid.='.' . $_SERVER['SERVER_PORT'];
+            }
+        }
+        return str_replace(array('_', '.', ',', ' ', ':'), '-', $uuid);
+    }
+
+    public static function toHex($str) {
+        $hex = '';
+        for ($i = 0; $i < strlen($str); $i++) {
+            $ord = ord($str[$i]);
+            $hexCode = dechex($ord);
+            $hex .= substr('0' . $hexCode, -2);
+        }
+        return strToUpper($hex);
+    }
+
+    public static function fromHex($hex) {
+        $str = '';
+        for ($i = 0; $i < strlen($hex) - 1; $i+=2) {
+            $str .= chr(hexdec($hex[$i] . $hex[$i + 1]));
+        }
+        return $str;
     }
 
     /**
@@ -407,7 +438,7 @@ class pure_str {
 
     public static function parseIniString($str) {
 
-        if (empty($str)){
+        if (empty($str)) {
             return array();
         }
 

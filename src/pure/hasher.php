@@ -14,7 +14,7 @@
 # It is suggested that you leave the main version number intact, but indicate
 # your project name (after the slash) and add your own revision information.
 #
-# Please do not change the "private" password hashing method implemented in
+# Please do not change the "private" data hashing method implemented in
 # here, thereby making your hashes incompatible.  However, if you must, please
 # change the hash type identifier (the "$P$") to something different.
 #
@@ -23,12 +23,12 @@
 #
 
 /**
- * Password Hasher based in phpass 0.3-rev1.8, with many improvements
+ * Data or password hasher based in phpass 0.3-rev1.8, with many improvements
  * 
- * You should use this class instead of md5 or sha for hashing and checking your passwords.
+ * You should use this class instead of md5 or sha for hashing and checking your data.
  * You may need to store the hash somewhere.
  */
-class pure_password {
+class pure_hasher {
 
     /**
      *
@@ -60,6 +60,12 @@ class pure_password {
      */
     protected $hashPrefix;
 
+    /**
+     *
+     * @var pure_hasher 
+     */
+    protected static $instance = null;
+
     public function __construct($iterationCountLog2 = 8, $areHashesPortable = false, $hashPrefix = '$P$') {
         $this->hashPrefix = $hashPrefix;
 
@@ -70,10 +76,22 @@ class pure_password {
 
         $this->areHashesPortable = $areHashesPortable;
 
-        $this->randomState = microtime();
         if (function_exists('getmypid')) {
-            $this->randomState .= getmypid();
+            $this->randomState = getmypid();
+        } else {
+            $this->randomState = str_replace(array('-', " ", '.', '_'), '', uniqid(mt_rand(), true));
         }
+    }
+
+    /**
+     * 
+     * @return pure_hasher
+     */
+    public static function getInstance() {
+        if (is_null(self::$instance)) {
+            self::$instance = new self();
+        }
+        return self::$instance;
     }
 
     protected function getRandomBytes($count) {
@@ -129,7 +147,7 @@ class pure_password {
         return $output;
     }
 
-    protected function cryptPrivate($password, $setting) {
+    protected function cryptPrivate($str, $setting) {
         $output = '*0';
         if (substr($setting, 0, 2) == $output) {
             $output = '*1';
@@ -156,9 +174,9 @@ class pure_password {
         # consequently in lower iteration counts and hashes that are
         # quicker to crack (by non-PHP code).
 
-        $hash = md5($salt . $password, TRUE);
+        $hash = md5($salt . $str, TRUE);
         do {
-            $hash = md5($hash . $password, TRUE);
+            $hash = md5($hash . $str, TRUE);
         } while (--$count);
 
 
@@ -225,12 +243,12 @@ class pure_password {
         return $output;
     }
 
-    public function hash($password) {
+    public function hash($str) {
         $random = '';
 
         if ((CRYPT_BLOWFISH == 1) && !$this->areHashesPortable) {
             $random = $this->getRandomBytes(16);
-            $hash = crypt($password, $this->genSaltBlowfish($random));
+            $hash = crypt($str, $this->genSaltBlowfish($random));
             if (strlen($hash) == 60) {
                 return $hash;
             }
@@ -240,7 +258,7 @@ class pure_password {
             if (strlen($random) < 3) {
                 $random = $this->getRandomBytes(3);
             }
-            $hash = crypt($password, $this->genSaltExtended($random));
+            $hash = crypt($str, $this->genSaltExtended($random));
             if (strlen($hash) == 20) {
                 return $hash;
             }
@@ -249,21 +267,21 @@ class pure_password {
         if (strlen($random) < 6) {
             $random = $this->getRandomBytes(6);
         }
-        $hash = $this->cryptPrivate($password, $this->genSaltPrivate($random));
+        $hash = $this->cryptPrivate($str, $this->genSaltPrivate($random));
         if (strlen($hash) == 34) {
             return $hash;
         }
 
         # Returning '*' on error is safe here, but would _not_ be safe
         # in a crypt(3)-like function used _both_ for generating new
-        # hashes and for validating passwords against existing hashes.
+        # hashes and for validating data against existing hashes.
         return '*';
     }
 
-    public function check($password, $storedHash) {
-        $hash = $this->cryptPrivate($password, $storedHash);
+    public function check($str, $storedHash) {
+        $hash = $this->cryptPrivate($str, $storedHash);
         if ($hash[0] == '*') {
-            $hash = crypt($password, $storedHash);
+            $hash = crypt($str, $storedHash);
         }
 
         return $hash == $storedHash;
