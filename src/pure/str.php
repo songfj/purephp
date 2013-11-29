@@ -42,10 +42,10 @@ class pure_str {
      * @param string $salt
      * @param bool $appendMicrotime
      * @param bool $appendPID
-     * @param bool $appendHostName
+     * @param bool $appendServerAddr
      * @return string Hexadecimal string (variable length)
      */
-    public static function uniqid($salt = '', $appendMicrotime = true, $appendPID = true, $appendHostName = true) {
+    public static function uniqid($salt = '', $appendMicrotime = true, $appendPID = true, $appendServerAddr = true) {
         $uuid = uniqid(mt_rand() . $salt, true);
         if ($appendMicrotime === true) {
             usleep(5);
@@ -54,10 +54,10 @@ class pure_str {
         if (($appendPID === true) and (function_exists('getmypid'))) {
             $uuid.='.' . getmypid();
         }
-        if (($appendHostName === true) and isset($_SERVER['SERVER_NAME']) and !empty($_SERVER['SERVER_NAME'])) {
-            $uuid.='.' . self::toHex($_SERVER['SERVER_NAME']);
+        if (($appendServerAddr === true) and isset($_SERVER['SERVER_ADDR']) and !empty($_SERVER['SERVER_ADDR'])) {
+            $uuid.='.' . str_replace(array(':', '.'), '', $_SERVER['SERVER_ADDR']);
             if (isset($_SERVER['SERVER_PORT']) and !empty($_SERVER['SERVER_PORT'])) {
-                $uuid.='.' . $_SERVER['SERVER_PORT'];
+                $uuid.= $_SERVER['SERVER_PORT'];
             }
         }
         return str_replace(array('_', '.', ',', ' ', ':'), '-', $uuid);
