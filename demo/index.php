@@ -73,6 +73,6 @@ try {
     $app->start();
 } catch (Exception $exc) {
     error_log($exc->getTraceAsString());
-    pure::dieMessage();
+    pure::halt();
 }
 ?>

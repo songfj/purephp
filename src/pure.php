@@ -432,7 +432,20 @@ class pure {
         self::redirect($url, $status);
     }
 
-    public static function dieMessage($message = '500 Internal Server Error', $status = '500 Internal Server Error') {
+    public static function messages($name = null, $value = null) {
+        $messages = self::app()->data('messages');
+        $numargs = func_num_args();
+        if ($numargs == 1) {
+            $name = mb_strtoupper($name);
+            return isset($messages[$name]) ? $messages[$name] : '{' . $name . '}';
+        } else {
+            $name = mb_strtoupper($name);
+            $messages[$name] = $value;
+        }
+        return $messages;
+    }
+
+    public static function halt($message = '500 Internal Server Error', $status = '500 Internal Server Error') {
         if (strpos(strtolower(PHP_SAPI), 'cgi') !== false) {
             header("Status: " . $status);
         } else {

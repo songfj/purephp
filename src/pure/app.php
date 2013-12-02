@@ -15,7 +15,9 @@ class pure_app {
         'urls' => array(),
         'engines' => array(),
         'middleware' => array(),
-        'data' => array(),
+        'data' => array(
+            'messages' => array()
+        ),
         'flags' => array()
     );
 
@@ -39,7 +41,7 @@ class pure_app {
 
     public function __construct(pure_loader $loader, array $paths, $name = 'default', array $config = array()) {
         if (isset(self::$instances[$name])) {
-            throw new pure_error('Instances cannot have same names');
+            throw new pure_error('There is another pure_app instance with the same name.');
         }
 
         $this->config = $config;
