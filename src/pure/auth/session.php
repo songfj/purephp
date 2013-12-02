@@ -16,7 +16,7 @@ class pure_auth_session {
         'cookie_path' => '/',
         'cookie_domain' => null,
         'cookie_secure' => false,
-        'cookie_httponly' => false
+        'cookie_httponly' => true
     );
 
     /**
@@ -61,7 +61,7 @@ class pure_auth_session {
     public function logout() {
         if ($this->isLoggedIn()) {
             $this->session->remove($this->config('session_var'));
-            $tokens = array('session' => $this->sessionValue, 'cookie' => $this->removeCookieToken());
+            $tokens = array('session' => $this->sessionValue, 'cookie' => $this->getCookieToken());
             $this->removeCookieToken();
             $this->sessionValue = false;
             pure_dispatcher::getInstance()->trigger('auth.session_logout', array('tokens' => $tokens), $this);
