@@ -41,7 +41,7 @@ class pure_app {
 
     public function __construct(pure_loader $loader, array $paths, $name = 'default', array $config = array()) {
         if (isset(self::$instances[$name])) {
-            throw new pure_error('There is another pure_app instance with the same name.');
+            throw new Exception('pure_app: There is another pure_app instance with the same name.');
         }
 
         $this->config = $config;

@@ -72,12 +72,12 @@ class pure {
     /**
      * 
      * @param string $event Event name
-     * @param array $context
+     * @param array $args Arguments that will be passed to the callable handler, after the dispatcher and emitter instances
      * @param mixed $emitter Object that emits the event, if null a global event is emitted
      * @return int The total handlers that listened to the event
      */
-    public static function trigger($event, array $context = array(), $emitter = null) {
-        return pure_dispatcher::getInstance()->trigger($event, $context, $emitter);
+    public static function trigger($event, array $args = array(), $emitter = null) {
+        return pure_dispatcher::getInstance()->trigger($event, $args, $emitter);
     }
 
     /**

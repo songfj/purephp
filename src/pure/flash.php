@@ -40,11 +40,12 @@ class pure_flash {
 
     /**
      * 
+     * @param pure_session $session
      * @return pure_flash
      */
-    public static function getInstance() {
+    public static function getInstance(pure_session $session) {
         if (self::$instance == null) {
-            self::$instance = new self(pure_session::getInstance());
+            self::$instance = new self($session);
         }
         return self::$instance;
     }

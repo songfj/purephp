@@ -66,22 +66,22 @@ class pure_dispatcher {
     /**
      * 
      * @param string $event Event name
-     * @param array $context
+     * @param array $args Arguments that will be passed to the callable handler, after the dispatcher and emitter instances
      * @param mixed $emitter Object that emits the event, if null a global event is emitted
      * @return int The total handlers that listened to the event
      */
-    public function trigger($event, array $context = array(), $emitter = null) {
+    public function trigger($event, array $args = array(), $emitter = null) {
         $counter = 0;
         $start_mtime = microtime(true);
 
         // first two parameters will always be $this (the emitter) and $emitter (the sender or instance that emitted the event)
-        array_unshift($context, $this, $emitter);
+        array_unshift($args, $this, $emitter);
 
         if (isset($this->handlers[$event])) {
             foreach ($this->handlers[$event] as $priority => $handlers) {
                 foreach ($handlers as $i => $h) {
                     if (($emitter === $h["emitter"])) {
-                        call_user_func_array($h["handler"], $context);
+                        call_user_func_array($h["handler"], $args);
                         $counter++;
                     }
                 }
