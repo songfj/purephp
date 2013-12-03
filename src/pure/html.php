@@ -137,6 +137,10 @@ class pure_html {
         }
         return self::$instance;
     }
+    
+    public static function doc($content, $doctype = '<!DOCTYPE html>', $head = '<html><head></head><body>', $foot = '</body></html>'){
+        return implode("\n", array($doctype, $head, $content, $foot));
+    }
 
     /**
      * Converts a key-value pair array into a html-attr string

@@ -73,5 +73,6 @@ Other events (outside of the default app life cycle) :
 
 ## To-Do
 
+* Plugins system
 * Port expressjs param binding engine
 * CLI Mode / executable
