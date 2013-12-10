@@ -1,5 +1,5 @@
 {
-    "name": "mjaalnir/purephp",
+    "name": "mjolnic/purephp",
     "description": "A lightweight PHP 5.2+ RESTFul framework based on expressjs",
     "version": "1.0.0",
     "keywords": ["lightweight", "framework", "restful", "express"],
@@ -7,7 +7,7 @@
     "authors": [
         {
             "name": "Javier Aguilar",
-            "homepage": "http://github/purephp"
+            "homepage": "http://mjolnic.github.io/"
         }
     ],
     "autoload": {

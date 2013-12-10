@@ -2,8 +2,8 @@
 
 **A lightweight PHP 5.2+ RESTFul framework based on expressjs**
 
-[![Build Status](https://travis-ci.org/mjaalnir/purephp.png)](https://travis-ci.org/mjaalnir/purephp)
-[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/mjaalnir/purephp/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
+[![Build Status](https://travis-ci.org/mjolnic/purephp.png)](https://travis-ci.org/mjolnic/purephp)
+[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/mjolnic/purephp/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
 
 ## Why PHP 5.2?
 
