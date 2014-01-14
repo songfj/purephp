@@ -1,9 +1,6 @@
 # PURE Framework
 
-**A lightweight PHP 5.2+ RESTFul framework based on expressjs**
-
-[![Build Status](https://travis-ci.org/purephp/purephp_legacy.png)](https://travis-ci.org/purephp/purephp_legacy)
-[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/purephp/purephp_legacy/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
+**A lightweight RESTFul framework with legacy support for PHP 5.2+ . Based on expressjs**
 
 ## Why PHP 5.2?
 
