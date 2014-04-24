@@ -22,9 +22,7 @@ for using as a part of an existing project, like Wordpress.
 
 ## Setup
 
-* Download or clone the source code
-* Navigate to install.php and follow the instructions
-* For getting started read the demo app source code
+* Download or clone the source code and navigate to the folder url
 
 ## Features
 
@@ -50,8 +48,8 @@ a 2011 iMac with 4GB of DDR3 RAM using MAMP
 
 ## Events
 
-You can trigger, bind or unbind events using pure::trigger, pure::on and
-pure::off respectively.
+You can trigger, bind or unbind events using Pure::trigger, Pure::on and
+Pure::off respectively.
 
 Those events are triggered by the framework (usually in this order):
 
