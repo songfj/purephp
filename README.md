@@ -59,15 +59,3 @@ Those events are triggered by the framework (usually in this order):
 * tpl.before_load, tpl.load
 * request.before_send, request.send
 * app.dispatch, app.start
-
-
-Other events (outside of the default app life cycle) :
-
-* auth.session_login, auth.session_logout
-
-
-## To-Do
-
-* Plugins system
-* Port expressjs param binding engine
-* CLI Mode / executable
