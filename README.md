@@ -1,4 +1,4 @@
-# PURE Framework
+# PurePHP Framework
 
 **A lightweight RESTFul framework with legacy support for PHP 5.2+ . Based on expressjs**
 

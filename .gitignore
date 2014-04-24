@@ -10,7 +10,7 @@ Thumbs.db
 *.log
 *.cache
 *.cache.html
-/nbproject/
+/nbproject/private/
 /app/data/logs/*
 /content/uploads/*
 *.sqlite

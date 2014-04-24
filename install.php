@@ -47,7 +47,7 @@ if ($is_post) {
 <html lang="en">
     <head>
         <meta charset="utf-8">
-        <title>PURE Framework</title>
+        <title>PurePHP Framework</title>
         <link href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css" rel="stylesheet">
         <style>
             /* Space out content a bit */
@@ -130,7 +130,7 @@ if ($is_post) {
     <body>
         <div class="container">
             <div class="header">
-                <h3 class="text-muted">PURE Framework</h3>
+                <h3 class="text-muted">PurePHP Framework</h3>
             </div>
 
             <?php if (empty($errors) and ($project_created === true)): ?>

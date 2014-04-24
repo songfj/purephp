@@ -1,5 +1,5 @@
 {
-    "name": "purephp/legacy",
+    "name": "mjolnic/purephp",
     "description": "A lightweight RESTFul framework with legacy support for PHP 5.2+ . Based on expressjs",
     "version": "1.0.0",
     "keywords": ["lightweight", "framework", "restful", "express"],
