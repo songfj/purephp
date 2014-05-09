@@ -15,6 +15,6 @@ Thumbs.db
 *.sqlite
 .setup
 .ignore
-/nbproject/private/
+/nbproject/
 .idea
 node_modules
