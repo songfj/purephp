@@ -10,11 +10,15 @@
         }
     ],
     "autoload": {
+        "files": [
+            "src/Illuminate/Support/helpers.php"
+        ],
         "psr-0": {
-            "Pure_": "app/vendor/PurePHP/src"
+            "Pure_": "vendor/mjolnic/purephp/",
+            "*": "app/src/"
         }
     },
     "config": {
-        "vendor-dir": "app/vendor"
+        "vendor-dir": "vendor"
     }
 }

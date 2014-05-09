@@ -1,0 +1,189 @@
+.sticky-footer(@height:80px){
+    .sticky-footer-container {
+        position: relative;
+        min-height: 100%;
+        width:100%;
+    }
+    .sticky-footer-wrapper {
+        /* Margin bottom by footer height */
+        margin-bottom: @height;
+    }
+
+    .sticky-footer {
+        position: absolute;
+        left:0;
+        bottom: 0;
+        width: 100%;
+        /* Set the fixed height of the footer here */
+        height: @height;
+    }
+}
+
+.button-variant(@color; @background; @border) {
+    color: @color;
+    background-color: @background;
+    border-color: @border;
+
+    &:hover,
+        &:focus,
+        &:active,
+        &.active,
+        .open > .dropdown-toggle& {
+        color: @color;
+        background-color: darken(@background, 10%);
+        border-color: darken(@border, 12%);
+    }
+    &:active,
+        &.active,
+        .open > .dropdown-toggle& {
+        background-image: none;
+    }
+    &.disabled,
+    &[disabled],
+    fieldset[disabled] & {
+        &,
+        &:hover,
+            &:focus,
+            &:active,
+            &.active {
+            background-color: @background;
+            border-color: @border;
+        }
+    }
+
+    .badge {
+        color: @background;
+        background-color: @color;
+    }
+}
+
+/*!
+ * Datepicker for Bootstrap
+ * https://github.com/eternicode/bootstrap-datepicker
+ * Copyright 2012 Stefan Petre
+ * Improvements by Andrew Rowls
+ * Licensed under the Apache License v2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ */
+
+.datepicker(@defaultColor:#333, @bg:#fff, @hoverBg:#eee, @hoverColor:#333, @activeColor:#222222, @activeBg:#d0c480, @disabledColor:#999, @otherColor:#666) {
+    background-color:@bg;
+    color:@defaultColor;
+    &-dropdown { // triangles
+                 &:before {
+                     border-bottom-color: darken(@bg, 10%);
+                     border-bottom-color: rgba(0,0,0,.2);
+                 }
+                 &:after {
+                     border-bottom-color: @bg !important;
+                 }
+                 &.datepicker-orient-bottom:before {
+                     border-top-color: darken(@bg, 50%);
+                 }
+                 &.datepicker-orient-bottom:after {
+                     border-top-color:@bg;
+                 }
+    }
+    // Inline display inside a table presents some problems with
+    // border and background colors.
+    .table-striped & table tr {
+        td, th {
+            background-color:transparent;
+        }
+    }
+    table tr td {
+        &.day:hover, &.day.focused {
+            background: @hoverBg;
+        }
+        &.old,
+        &.new {
+            color: @otherColor;
+            &:hover, &.focused {
+                color: @hoverColor;
+            }
+        }
+        &.disabled,
+        &.disabled:hover {
+            background: none;
+            color: @disabledColor;
+        }
+        &.today,
+        &.today:hover,
+            &.today.disabled,
+            &.today.disabled:hover {
+            @today-bg: lighten(@activeBg, 30%);
+            .button-variant(@activeColor, @today-bg, @today-bg);
+        }
+        &.today:hover:hover { // Thank bootstrap 2.0 for this selector...
+                              // TODO: Bump min BS to 2.1, use @defaultColor in buttonBackground above
+                              color: @activeColor;
+        }
+        &.today.active:hover {
+            color: @activeColor;
+        }
+        &.range,
+        &.range:hover,
+            &.range.disabled,
+            &.range.disabled:hover {
+            background:@hoverBg;
+        }
+        &.range.today,
+        &.range.today:hover,
+            &.range.today.disabled,
+            &.range.today.disabled:hover {
+            @today-bg: mix(@activeBg, #888, 50%);
+            .button-variant(@activeColor, @today-bg, @today-bg);
+        }
+        &.selected,
+        &.selected:hover,
+            &.selected.disabled,
+            &.selected.disabled:hover {
+            .button-variant(@activeColor, @activeBg, @activeBg);
+            text-shadow: none;
+        }
+        &.active,
+        &.active:hover,
+            &.active.disabled,
+            &.active.disabled:hover {
+            .button-variant(@activeColor, @activeBg, @activeBg);
+            text-shadow: none;
+        }
+        span {
+            &:hover {
+                background: @hoverBg;
+            }
+            &.disabled,
+            &.disabled:hover {
+                background: none;
+                color: @defaultColor;
+            }
+            &.active,
+            &.active:hover,
+                &.active.disabled,
+                &.active.disabled:hover {
+                .button-variant(@activeColor, @activeBg, @activeBg);
+                text-shadow: none;
+            }
+            &.old,
+            &.new {
+                color: @defaultColor;
+            }
+        }
+    }
+
+    thead tr:first-child th,
+        tfoot tr th {
+        &:hover{
+            background: @hoverBg;
+        }
+    }
+    /*.dow {
+            border-top: 1px solid #ddd !important;
+    }*/
+
+    // Basic styling for calendar-week cells
+    thead tr:first-child th.cw {
+        background-color: transparent;
+    }
+}

@@ -37,30 +37,29 @@ $rootpath = realpath(dirname(__FILE__)) . $ds;
 
 $paths = array(
     'root' => $rootpath,
+    'public' => $rootpath,
     'app' => $rootpath . 'app/',
     'config' => $rootpath . 'app/config/',
-    'vendor' => $rootpath . 'app/vendor/',
+    'vendor' => $rootpath . 'vendor/',
     'data' => $rootpath . 'app/data/',
     'logs' => $rootpath . 'app/data/logs/',
     'content' => $rootpath . 'content/',
-    'assets' => $rootpath . 'content/assets/',
     'uploads' => $rootpath . 'content/uploads/',
-    'views' => $rootpath . 'content/views/'
+    'views' => $rootpath . 'app/views/'
 );
 
 
 // Set initial error log file
 ini_set('error_log', $paths['logs'] . 'php_error.log');
 
-require_once $paths['vendor'] . 'PurePHP/src/Pure/Loader.php';
+require_once $paths['vendor'] . 'mjolnic/purephp/Pure/Loader.php';
 
 $loader = Pure_Loader::getDefault();
 $loader->register();
-$loader->add(null, array($paths['vendor'], $paths['app'] . 'classes'));
+$loader->add(null, array($paths['vendor'], $paths['app'] . 'src'));
 
 /* @var $app Pure_App */
-$hasModRewrite = (isset($_SERVER['APPLICATION_REWRITE_ENGINE']) && ($_SERVER['APPLICATION_REWRITE_ENGINE'] == 'on'));
-$app = new $appClass($loader, $paths, 'default', array('useIndexFile' => ($hasModRewrite == false), 'hasModRewrite' => $hasModRewrite));
+$app = new $appClass($loader, $paths);
 
 try {
     $app->start();
