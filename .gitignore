@@ -21,3 +21,4 @@ node_modules
 composer.lock
 /vendor/
 !/vendor/mjolnic/purephp/
+!/vendor/mjolnic/purephp/*
