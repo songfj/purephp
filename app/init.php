@@ -2,7 +2,7 @@
 // Application initialization file
 
 // including helpers is optional
-include Pure::path('purephp') . 'helpers.php';
+include_once Pure::path('purephp') . 'helpers.php';
 
 // Start a PHP session
 Pure::session()->start();

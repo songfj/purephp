@@ -9,16 +9,18 @@
             "homepage": "http://mjolnic.github.io/"
         }
     ],
+    "require": {
+        "php": ">=5.3.3"
+    },
     "autoload": {
-        "files": [
-            "src/Illuminate/Support/helpers.php"
-        ],
         "psr-0": {
-            "Pure_": "vendor/mjolnic/purephp/",
-            "*": "app/src/"
+            "Pure": "vendor/mjolnic/purephp/",
+            "": "app/src/"
         }
     },
     "config": {
-        "vendor-dir": "vendor"
-    }
+        "preferred-install": "dist"
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
 }
