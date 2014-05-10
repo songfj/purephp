@@ -1,6 +1,6 @@
 <?php
 
-$notifications = App::flash()->getMessages(true);
+$notifications = Pure::flash()->getMessages(true);
 if(count($notifications) > 0):
     ?>
 <div class="container">

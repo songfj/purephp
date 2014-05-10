@@ -3,11 +3,9 @@
 // Application config
 
 $config = array(
-    //Whoops
-    'debug' => true,
     // DB
     'db.enabled' => true,
-    'db.dsn' => 'sqlite:' . App::path('data') . 'app.sqlite',
+    'db.dsn' => 'sqlite:' . Pure::path('data') . 'app.sqlite',
     'db.username' => null,
     'db.password' => null,
     // SMTP

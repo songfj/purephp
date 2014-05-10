@@ -1,6 +1,6 @@
 <?php
 
-class MainController extends Pure_Controller {
+class MainController {
 
     /**
      * 
@@ -10,8 +10,8 @@ class MainController extends Pure_Controller {
      * @param app $app
      */
     public static function index($req, $resp, $route, $app) {
-        App::flash()->write('success', 'This is a flash message test.');
-        App::send('home');
+        Pure::flash()->write('success', 'This is a flash message test.');
+        Pure::send('home');
     }
 
     /**
@@ -22,7 +22,7 @@ class MainController extends Pure_Controller {
      * @param app $app
      */
     public static function handle($req, $resp, $route, $app) {
-        App::send('404', array(), array(), 404);
+        Pure::send('404', array(), array(), 404);
     }
 
 }

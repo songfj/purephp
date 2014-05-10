@@ -33,6 +33,6 @@
         of cookies <a href="#" target="_blank">Learn more</a>
     </div>
 </div>
-<script src="<?php echo pure_asset('js/app.min.js'); ?>"></script>
+<script src="<?php echo asset('js/app.min.js'); ?>"></script>
 </body>
 </html>

@@ -18,6 +18,3 @@ Thumbs.db
 /nbproject/
 .idea
 node_modules
-composer.lock
-/vendor/
-!/vendor/mjolnic/purephp/

@@ -3,7 +3,7 @@
 /**
  * Basic PHP templating engine
  */
-class Pure_View {
+class Pure_Tpl {
 
     /**
      *
