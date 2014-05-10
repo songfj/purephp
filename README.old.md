@@ -1,13 +1,24 @@
 # PurePHP Framework
 
-**A lightweight RESTFul framework for PHP 5.3.3+**
+**A lightweight RESTFul framework with legacy support for PHP 5.2+ . Based on expressjs**
 
-IMPORTANT: I am discontinuing the PHP 5.2 support, but if you are still interested there is a (unmaintained) php5.2 branch
+## Why PHP 5.2?
+
+The majority of my customers' hostings are not supporting PHP 5.3 yet and I needed a very simple and easy to understand framework
+for small projects, a framework which you just unzip and works with zero or one-step installation.
+
+I felt unconfortable with other PHP 5.2 frameworks out there, that wasn't giving me the freedom I needed, specially before
+using other frameworks like expressjs or Slim for a while: decoupled framework and engines, facade mode, middleware, RESTful driven, events, ...
+
+So I ported many expressjs concepts and route regular expression engine to the PHP world.
+
+With PurePHP you can build your own framework, with the directories or engines that best fit your requirements, or just embed it
+for using as a part of an existing project, like Wordpress.
 
 ## Requirements
 
-* Apache 2 server (not tested in others)
-* PHP 5.3.3 or later
+* Apache server
+* PHP 5.2 or later
 
 ## Setup
 
@@ -21,13 +32,9 @@ IMPORTANT: I am discontinuing the PHP 5.2 support, but if you are still interest
 * Event listener / dispatcher
 * Flash messaging
 * Basic templating engine (pure php)
-* Helpers based in Laravel 4
-* Support for Laravel Blade templates
-* Integration with Whoops and Monolog
+* Composer class loader port compatible with PHP 5.2
 
 ## Benchmarks
-
-(NEEDS UPDATE)
 
 Apache Bench is used in all tests (ab -n 2000 -c 10 {url}) in
 a 2011 iMac with 4GB of DDR3 RAM using MAMP

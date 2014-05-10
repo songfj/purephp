@@ -52,11 +52,7 @@ $paths = array(
 // Set initial error log file
 ini_set('error_log', $paths['logs'] . 'php_error.log');
 
-require_once $paths['vendor'] . 'mjolnic/purephp/Pure/Loader.php';
-
-$loader = Pure_Loader::getDefault();
-$loader->register();
-$loader->add(null, array($paths['vendor'], $paths['app'] . 'src'));
+$loader = require $paths['vendor'] . 'autoload.php';
 
 /* @var $app Pure_App */
 $app = new $appClass($loader, $paths);
@@ -65,6 +61,6 @@ try {
     $app->start();
 } catch (Exception $exc) {
     error_log($exc->getTraceAsString());
-    Pure::halt();
+    $app->halt();
 }
 ?>

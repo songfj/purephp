@@ -382,7 +382,7 @@ class Pure_Http_Request {
      * @return mixed The variable value
      */
     public function get($key, $default = NULL, $validation = NULL) {
-        return Pure_V::check($this->query, $key, $default, $validation);
+        return Pure_Validator::check($this->query, $key, $default, $validation);
     }
 
     /**
@@ -395,7 +395,7 @@ class Pure_Http_Request {
      * @return mixed The variable value
      */
     public function post($key, $default = NULL, $validation = NULL) {
-        return Pure_V::check($this->body, $key, $default, $validation);
+        return Pure_Validator::check($this->body, $key, $default, $validation);
     }
 
     /**
@@ -431,7 +431,7 @@ class Pure_Http_Request {
      * @return mixed The variable value
      */
     public function cookie($key, $default = NULL, $validation = NULL) {
-        return Pure_V::check($this->cookies, $key, $default, $validation);
+        return Pure_Validator::check($this->cookies, $key, $default, $validation);
     }
 
     /**
@@ -444,7 +444,7 @@ class Pure_Http_Request {
      * @return mixed The variable value
      */
     public function segment($key, $default = NULL, $validation = NULL) {
-        return Pure_V::check($this->segments, $key, $default, $validation);
+        return Pure_Validator::check($this->segments, $key, $default, $validation);
     }
 
     public function userAgent() {

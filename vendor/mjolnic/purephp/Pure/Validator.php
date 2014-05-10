@@ -3,7 +3,7 @@
 /**
  * Validator and sanitizer
  */
-class Pure_V {
+class Pure_Validator {
 
     /**
      * Checks if a variable exists inside an array and matches the given php filter or regular expression.

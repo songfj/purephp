@@ -4,8 +4,7 @@
  * @todo Basic admin login
  *
  */
-class Pure_App
-{
+class Pure_App {
 
     /**
      * App registry
@@ -40,22 +39,44 @@ class Pure_App
      */
     protected static $currentInstance = false;
 
-    public function __construct(Pure_Loader $loader, array $paths, $name = 'default', array $config = array())
-    {
+    public function __construct(\Composer\Autoload\ClassLoader $loader, array $paths, $name = 'default', array $config = array()) {
         if (isset(self::$instances[$name])) {
             throw new Exception('Pure_App: There is another Pure_App instance with the same name.');
+        } else {
+            self::$instances[$name] = $this;
         }
+
+        if (self::$currentInstance === false) {
+            self::$currentInstance = $name;
+        }
+
+        $this->registry['engines']['loader'] = $loader;
 
         $this->config = $config;
 
-        if (!isset($config['hasModRewrite'])) {
-            $config['hasModRewrite'] = (isset($_SERVER['APPLICATION_REWRITE_ENGINE']) && ($_SERVER['APPLICATION_REWRITE_ENGINE'] == 'on'));
+        // (Optional) Environment name
+        if (!isset($this->config['APP_ENV'])) {
+            $this->config['APP_ENV'] = getenv('APP_ENV');
         }
 
-        if (!isset($config['useIndexFile'])) {
-            $config['useIndexFile'] = ($config['hasModRewrite'] === false);
+        if (empty($this->config['APP_ENV']) or ( $this->config['APP_ENV'] == false)) {
+            $this->config['APP_ENV'] = 'develop';
         }
 
+        $this->config['APP_ENV'] = strtolower($this->config['APP_ENV']);
+
+        $this->_initPaths($paths);
+        $this->_initHttp();
+        $this->_initConfig();
+        $this->_initVendors();
+
+        // (Optional) Init file
+        if (is_readable($this->registry['paths']['app'] . 'init.php')) {
+            include $this->registry['paths']['app'] . 'init.php';
+        }
+    }
+
+    private function _initPaths(array $paths) {
         $ds = DIRECTORY_SEPARATOR;
         $rootpath = realpath(dirname($_SERVER['SCRIPT_FILENAME'])) . $ds;
         $libpath = realpath(dirname(__FILE__) . '/../') . $ds;
@@ -73,9 +94,7 @@ class Pure_App
             'uploads' => $rootpath . "content{$ds}uploads{$ds}",
             'views' => $rootpath . "content{$ds}views{$ds}",
             'purephp' => $libpath
-        ), $paths);
-
-        $this->registry['engines']['loader'] = $loader;
+                ), $paths);
 
         // Paths
         if (!file_exists($paths['data'] . '.setup')) {
@@ -87,19 +106,22 @@ class Pure_App
             file_put_contents($paths['data'] . '.setup', time());
         }
         $this->registry['paths'] = $paths;
+    }
 
-        if (!isset(self::$instances[$name])) {
-            self::$instances[$name] = $this;
+    private function _initHttp() {
+
+        if (!isset($this->config['hasModRewrite'])) {
+            $this->config['hasModRewrite'] = (isset($_SERVER['APPLICATION_REWRITE_ENGINE']) && ($_SERVER['APPLICATION_REWRITE_ENGINE'] == 'on'));
         }
 
-        if (self::$currentInstance === false) {
-            self::$currentInstance = $name;
+        if (!isset($this->config['useIndexFile'])) {
+            $this->config['useIndexFile'] = ($this->config['hasModRewrite'] === false);
         }
 
         $this->registry['engines']['request'] = Pure_Http_Request::getInstance();
         $this->registry['engines']['response'] = Pure_Http_Response::getInstance();
         $this->registry['engines']['router'] = new Pure_Http_Router();
-        $this->registry['engines']['templating'] = new Pure_Tpl($this->path('views'));
+        $this->registry['engines']['view'] = new Pure_View($this->path('views'));
 
         // URLs
         $this->registry['urls']['domain'] = $this->request()->protocol . '://' . $this->request()->host . '/';
@@ -114,23 +136,17 @@ class Pure_App
         $this->registry['urls']['content'] = $this->registry['urls']['base'] . 'content/';
         $this->registry['urls']['current'] = trim($this->registry['urls']['base'] . $this->request()->path, '/') . '/';
         $this->registry['urls']['current_query'] = $this->registry['urls']['current'] .
-            (!empty($this->request()->query) ? '?' . http_build_query($this->request()->query) : '');
+                (!empty($this->request()->query) ? '?' . http_build_query($this->request()->query) : '');
         $this->registry['urls']['previous'] = $this->request()->previousUrl();
+    }
 
-        // (Optional) Environment name
-        if (!isset($this->config['APPLICATION_ENV'])) {
-            $this->config['APPLICATION_ENV'] = getenv('APPLICATION_ENV');
-        }
-
-        if (empty($this->config['APPLICATION_ENV']) or ($this->config['APPLICATION_ENV'] == false)) {
-            $this->config['APPLICATION_ENV'] = 'default';
-        }
+    private function _initConfig() {
 
         // (Optional) Config file based on environment
         $user_config = array();
 
-        if (is_readable($this->registry['paths']['config'] . $this->config['APPLICATION_ENV'] . '.php')) {
-            $user_config = include $this->registry['paths']['config'] . $this->config['APPLICATION_ENV'] . '.php';
+        if (is_readable($this->registry['paths']['config'] . $this->config['APP_ENV'] . '.php')) {
+            $user_config = include $this->registry['paths']['config'] . $this->config['APP_ENV'] . '.php';
         } elseif (is_readable($this->registry['paths']['config'] . 'default.php')) {
             $user_config = include $this->registry['paths']['config'] . 'default.php';
         }
@@ -139,43 +155,72 @@ class Pure_App
         }
 
         $this->config = Pure_Arr::merge($this->config, $user_config);
+    }
 
-        // PHP Mailer
-        require_once Pure::path('vendor') . 'phpmailer/phpmailer/class.phpmailer.php';
-        require_once Pure::path('vendor') . 'phpmailer/phpmailer/class.smtp.php';
+    private function _initVendors() {
+        // Monolog
+        $this->engine('logger', new \Monolog\Logger('purephp'));
+        $this->engine('logger')->pushHandler(new \Monolog\Handler\StreamHandler($this->path('logs') . 'debug.log', \Monolog\Logger::DEBUG));
 
-        // Include redbeanphp
-        require_once Pure::path('vendor') . 'gabordemooij/redbean/rb.php';
+        // SwiftMailer
+        if (strtolower($this->config('smtp_enabled')) == true) {
+            $transport = Swift_SmtpTransport::newInstance($this->config('smtp_host'), $this->config('smtp_port'))
+                    ->setUsername($this->config('smtp_user'))
+                    ->setPassword($this->config('smtp_password'));
+        } else {
+            $transport = Swift_MailTransport::newInstance();
+        }
+        $this->engine('mailer', Swift_Mailer::newInstance($transport));
 
-        // Setup DB
-        if (Pure::config('db.enabled')) {
-            R::setup(Pure::config('db.dsn'), Pure::config('db.username'), Pure::config('db.password'));
+
+        // RedBean
+        if ($this->config('db.enabled')) {
+            RedBean_Facade::setup($this->config('db.dsn'), $this->config('db.username'), $this->config('db.password'));
+            $this->engine('database', RedBean_Facade::getToolBox()->getDatabaseAdapter()->getDatabase());
+        } else {
+            $this->engine('database', false);
         }
 
-        // (Optional) Init file
-        if (is_readable($this->registry['paths']['app'] . 'init.php')) {
-            include $this->registry['paths']['app'] . 'init.php';
+        // Whoops
+        if ($this->config('debug') === true) {
+            $this->engine('error_handler', new \Whoops\Run())->pushHandler(new \Whoops\Handler\PrettyPageHandler);
+            $this->engine('error_handler')->register();
+        } else {
+            $this->engine('error_handler', false);
         }
     }
 
-    public function config($name, $value = null)
-    {
+    /**
+     * Application environment name
+     * @return string
+     */
+    public function env() {
+        return $this->config['APP_ENV'];
+    }
+
+    public function isDevelop() {
+        return $this->env() == 'develop';
+    }
+
+    public function isProduction() {
+        return $this->env() == 'production';
+    }
+
+    public function config($name, $value = null) {
         if (func_num_args() > 1) {
             $this->config[$name] = $value;
         }
         return isset($this->config[$name]) ? $this->config[$name] : false;
     }
 
-    public function engine($name, $value = null)
-    {
+    public function engine($name, $value = null) {
         if (func_num_args() > 1) {
             $this->registry['engines'][$name] = $value;
         }
         return isset($this->registry['engines'][$name]) ? $this->registry['engines'][$name] : false;
     }
 
-    public function flag($name, $enable = null)
-    {
+    public function flag($name, $enable = null) {
         if (is_bool($enable)) {
             if (($enable === false) and $this->hasFlag($name)) {
                 unset($this->registry['flags'][$name]);
@@ -186,50 +231,51 @@ class Pure_App
         return $this->hasFlag($name) ? $this->registry['flags'][$name] : false;
     }
 
-    public function hasFlag($name)
-    {
+    public function hasFlag($name) {
         return isset($this->registry['flags'][$name]);
     }
 
-    public function getFlags()
-    {
+    public function getFlags() {
         return $this->registry['flags'];
     }
 
     /**
-     *
-     * @param string $to
-     * @param string $subject
-     * @param string $body
-     * @return \PHPMailer
+     * 
+     * @return Swift_Mailer
      */
-    public function mail($to, $subject, $body)
-    {
-        $mail = new PHPMailer(true);
-        $mail->SMTPDebug = 1;
-        if (strtolower(pure::config('smtp_enabled')) == true) {
-            $mail->SMTPAuth = true; //usar SMTP en vez de sendmail
-        }
-        $mail->Host = pure::config('smtp_host');
-        $mail->Port = pure::config('smtp_port');
-        $mail->Username = pure::config('smtp_user');
-        $mail->Password = pure::config('smtp_password');
-        $mail->AddAddress($to);
-        $mail->SetFrom(pure::config('smtp_from'));
-        $mail->Subject = $subject;
-        $mail->CharSet = 'UTF-8';
-        $mail->IsHTML(true);
-
-        $mail->Body = $body;
-        return $mail;
+    public function mailer() {
+        return $this->engine('mailer');
     }
 
     /**
      *
-     * @return Pure_Loader
+     * @param string|array $to
+     * @param string $subject
+     * @param string $body
+     * @param string|array $from
+     * @param string|array $bcc
+     * @return Pure_Mail A new mail message instance
      */
-    public function loader()
-    {
+    public function mail($to, $subject, $body, $from = null, $bcc = null) {
+        // Create a message
+        $message = Pure_Mail::newInstance($subject)
+                ->setFrom($from ? $from : $this->config('smtp_from'))
+                ->setTo($to)
+                ->setBody($body, 'text/html', 'utf-8');
+
+        if (!empty($bcc)) {
+            $message->setBcc($bcc);
+        }
+
+        // Send the message
+        return $message;
+    }
+
+    /**
+     *
+     * @return \Composer\Autoload\ClassLoader
+     */
+    public function loader() {
         return $this->engine('loader');
     }
 
@@ -238,8 +284,7 @@ class Pure_App
      * subdomains, basePath, path, extension, query, body, files, cookies, headers and ip
      * @return Pure_Http_Request
      */
-    public function request()
-    {
+    public function request() {
         return $this->engine('request');
     }
 
@@ -247,26 +292,23 @@ class Pure_App
      *
      * @return Pure_Http_Response
      */
-    public function response()
-    {
+    public function response() {
         return $this->engine('response');
     }
 
     /**
      *
-     * @return Pure_Tpl
+     * @return Pure_View
      */
-    public function templating()
-    {
-        return $this->engine('templating');
+    public function view() {
+        return $this->engine('view');
     }
 
     /**
      *
      * @return Pure_Http_Router
      */
-    public function router()
-    {
+    public function router() {
         return $this->engine('router');
     }
 
@@ -274,17 +316,15 @@ class Pure_App
      *
      * @return Redbean_Driver
      */
-    public function db()
-    {
-        return R::getToolBox()->getDatabaseAdapter()->getDatabase();
+    public function db() {
+        return $this->engine('database');
     }
 
     /**
      * Adds new middleware to the stack
      * @param callable $callback Callable middleware
      */
-    public function bind($callback)
-    {
+    public function bind($callback) {
         $this->registry['middleware'][] = $callback;
     }
 
@@ -294,24 +334,21 @@ class Pure_App
      * @param mixed $value
      * @return mixed
      */
-    public function data($name, $value = null)
-    {
+    public function data($name, $value = null) {
         if (func_num_args() > 1) {
             $this->registry['data'][$name] = $value;
         }
         return isset($this->registry['data'][$name]) ? $this->registry['data'][$name] : false;
     }
 
-    public function url($name = 'rewrite_base', $value = null)
-    {
+    public function url($name = 'rewrite_base', $value = null) {
         if (func_num_args() > 1) {
             $this->registry['urls'][$name] = $value;
         }
         return isset($this->registry['urls'][$name]) ? $this->registry['urls'][$name] : false;
     }
 
-    public function path($name = 'root', $value = null)
-    {
+    public function path($name = 'root', $value = null) {
         if (func_num_args() > 1) {
             $this->registry['paths'][$name] = $value;
         }
@@ -323,8 +360,7 @@ class Pure_App
      * @param Pure_Http_Route $route
      * @return mixed|false The callable return value or false
      */
-    public function next()
-    {
+    public function next() {
         $result = false;
         if (count($this->registry['middleware']) > 0) { // First execute all middleware
             $middleware = array_shift($this->registry['middleware']);
@@ -332,19 +368,33 @@ class Pure_App
         } else { // Then execute all router bindings
             $route = $this->prepareRoute();
             if ($route != false) {
-                $cb = array_shift($route->callbacks);
+                $cb = $this->getCallback(array_shift($route->callbacks));
                 $result = call_user_func_array($cb, array($this->request(), $this->response(), $route, $this));
             }
         }
         return $result ? $result : false;
     }
 
+    protected function getCallback($callback) {
+        $invalidMsg = 'The argument is not a callable function: ' . print_r($callback, true);
+        if (is_string($callback) and preg_match('/\@/', $callback)) {
+            $cb = explode('@', $callback);
+            if ((count($cb) == 2) and ( class_exists($cb[0]))) {
+                return array(new $cb[0](), $cb[1]);
+            } else {
+                throw new InvalidArgumentException($invalidMsg);
+            }
+        } elseif (!is_callable($callback)) {
+            throw new InvalidArgumentException($invalidMsg);
+        }
+        return $callback;
+    }
+
     /**
      * Dispatches the current request against the matched routes
      * executes the route lop
      */
-    public function start()
-    {
+    public function start() {
         Pure_Dispatcher::getInstance()->trigger('app.before_start', array(), $this);
         Pure_Dispatcher::getInstance()->trigger('app.before_dispatch', array(), $this);
         $this->router()->dispatch($this->request());
@@ -354,8 +404,7 @@ class Pure_App
         Pure_Dispatcher::getInstance()->trigger('app.start', array(), $this);
     }
 
-    protected function prepareRoute($route = null)
-    {
+    protected function prepareRoute($route = null) {
         if ($route === null) {
             $route = $this->router()->next();
         }
@@ -372,8 +421,7 @@ class Pure_App
      * @param type $instanceName
      * @return string
      */
-    public static function getInstance($instanceName = 'default')
-    {
+    public static function getInstance($instanceName = 'default') {
         return self::$instances[$instanceName];
     }
 
@@ -381,9 +429,17 @@ class Pure_App
      * Sets the current instance (must be created before)
      * @param string $name
      */
-    public static function setInstance($instanceName)
-    {
+    public static function setInstance($instanceName) {
         self::$currentInstance = $instanceName;
+    }
+
+    public function halt($message = '500 Internal Server Error', $status = '500 Internal Server Error') {
+        if (strpos(strtolower(PHP_SAPI), 'cgi') !== false) {
+            header("Status: " . $status);
+        } else {
+            header($_SERVER['SERVER_PROTOCOL'] . " " . $status);
+        }
+        die('<html><head></head><body><h1>' . $message . '</h1></body></html>');
     }
 
 }

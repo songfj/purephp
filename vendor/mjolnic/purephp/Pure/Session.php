@@ -31,7 +31,7 @@ class Pure_Session implements ArrayAccess {
     }
 
     public function __get($name) {
-        return Pure_V::check($_SESSION, $name, false, null);
+        return Pure_Validator::check($_SESSION, $name, false, null);
     }
 
     public function get($name) {

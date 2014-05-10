@@ -12,16 +12,16 @@
         <meta name="author" content="">
         <meta name="robots" content="INDEX, FOLLOW">
 
-        <!--<link rel="canonical" href="<?php echo url() ?>">-->
-        <link rel="shortcut icon" href="<?php echo asset('img/favicon.png'); ?>">
+        <!--<link rel="canonical" href="<?php echo pure_url() ?>">-->
+        <link rel="shortcut icon" href="<?php echo pure_asset('img/favicon.png'); ?>">
 
         <style type="text/css" id="relativecss">html,body{position:static} body * {position: relative}</style>
         
         <link href='http://fonts.googleapis.com/css?family=Noto+Sans:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
-        <link href="<?php echo asset('css/app.min.css') ?>" rel="stylesheet">
+        <link href="<?php echo pure_asset('css/app.min.css') ?>" rel="stylesheet">
 
         <!-- Cross-browser compatibility scripts: -->
-        <script type='text/javascript' src="<?php echo asset('vendor/js/compat.min.js') ?>"></script>
+        <script type='text/javascript' src="<?php echo pure_asset('vendor/js/compat.min.js') ?>"></script>
 
         <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
         <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
@@ -53,14 +53,14 @@
                                 <span class="icon-bar"></span>
                                 <span class="icon-bar"></span>
                             </button>
-                            <a class="navbar-brand logo" href="<?php echo url() ?>">
-                                <img height="50" width="50" src="<?php echo asset('img/logo.png'); ?>" alt=""/>
+                            <a class="navbar-brand logo" href="<?php echo pure_url() ?>">
+                                <img height="50" width="50" src="<?php echo pure_asset('img/logo.png'); ?>" alt=""/>
                             </a>
                         </div>
                         <nav role="navigation" class="navbar-collapse collapse">
                             <ul class="main-menu nav navbar-nav">
                                 <li class="menu-item menu-item-3  active ">
-                                    <a href="<?php echo url() ?>">Home</a>
+                                    <a href="<?php echo pure_url() ?>">Home</a>
                                 </li>
                                 <li class="menu-item menu-item-4 ">
                                     <a href="#">Contact</a>

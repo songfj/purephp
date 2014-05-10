@@ -4,16 +4,14 @@
  * Facade class. If not changed using Pure_App::setInstance,
  * all the facade methods references the default app instance
  */
-class Pure
-{
+class Pure_Facade {
 
     /**
      *
      * @param string $instanceName
      * @return Pure_App
      */
-    public static function app($instanceName = 'default')
-    {
+    public static function app($instanceName = 'default') {
         return Pure_App::getInstance($instanceName);
     }
 
@@ -21,48 +19,45 @@ class Pure
      *
      * @return Pure_Http_Request
      */
-    public static function req()
-    {
-        return self::app()->request();
+    public static function req() {
+        return static::app()->request();
     }
 
     /**
      *
      * @return Pure_Http_Response
      */
-    public static function resp()
-    {
-        return self::app()->response();
+    public static function resp() {
+        return static::app()->response();
     }
 
     /**
      *
      * @return Pure_Http_Router
      */
-    public static function router()
-    {
-        return self::app()->router();
+    public static function router() {
+        return static::app()->router();
     }
 
     /**
      *
-     * @param string $to
+     * @param string|array $to
      * @param string $subject
      * @param string $body
-     * @return \PHPMailer
+     * @param string|array $from
+     * @param string|array $bcc
+     * @return Pure_Mail A new mail message instance
      */
-    public static function mail($to, $subject, $body)
-    {
-        return self::app()->mail($to, $subject, $body);
+    public static function mail($to, $subject, $body, $from = null, $bcc = null) {
+        return static::app()->mail($to, $subject, $body, $from, $bcc);
     }
 
     /**
      *
      * @return Redbean_Driver
      */
-    public static function db()
-    {
-        return self::app()->db();
+    public static function db() {
+        return static::app()->db();
     }
 
     /**
@@ -73,8 +68,7 @@ class Pure
      * @param int $priority Handler priority
      * @param mixed $emitter Object to listen to
      */
-    public static function on($event, $handler, $priority = 0, $emitter = null)
-    {
+    public static function on($event, $handler, $priority = 0, $emitter = null) {
         return Pure_Dispatcher::getInstance()->on($event, $handler, $priority, $emitter);
     }
 
@@ -84,8 +78,7 @@ class Pure
      * @param mixed $emitter Object that emits the event, if null a global event is unlistened
      * @return int Total of unregistered handlers
      */
-    public static function off($event, $emitter = null)
-    {
+    public static function off($event, $emitter = null) {
         return Pure_Dispatcher::getInstance()->off($event, $emitter);
     }
 
@@ -96,8 +89,7 @@ class Pure
      * @param mixed $emitter Object that emits the event, if null a global event is emitted
      * @return int The total handlers that listened to the event
      */
-    public static function trigger($event, array $args = array(), $emitter = null)
-    {
+    public static function trigger($event, array $args = array(), $emitter = null) {
         return Pure_Dispatcher::getInstance()->trigger($event, $args, $emitter);
     }
 
@@ -105,14 +97,13 @@ class Pure
      *
      * @return string|Pure_Http_Response
      */
-    public static function load($tpl, $locals = array(), $options = array(), $asResponse = false, $status = 200, $contentType = 'text/html')
-    {
-        $content = self::app()->templating()->load($tpl, $locals, $options);
+    public static function load($tpl, $locals = array(), $options = array(), $asResponse = false, $status = 200, $contentType = 'text/html') {
+        $content = static::app()->view()->load($tpl, $locals, $options);
         if ($asResponse === true) {
-            self::app()->response()->body = $content;
-            self::app()->response()->status($status);
-            self::app()->response()->contentType($contentType);
-            return self::app()->response();
+            static::app()->response()->body = $content;
+            static::app()->response()->status($status);
+            static::app()->response()->contentType($contentType);
+            return static::app()->response();
         }
         return $content;
     }
@@ -121,35 +112,31 @@ class Pure
      *
      * @return Pure_Http_Response
      */
-    public static function send($tpl, $locals = array(), $options = array(), $status = 200, $contentType = 'text/html')
-    {
-        return self::app()->response()->send(self::load($tpl, $locals, $options), $status, $contentType);
+    public static function send($tpl, $locals = array(), $options = array(), $status = 200, $contentType = 'text/html') {
+        return static::app()->response()->send(static::load($tpl, $locals, $options), $status, $contentType);
     }
 
     /**
      *
      * @return Pure_Http_Response
      */
-    public static function send404($contentType = 'text/plain')
-    {
-        return self::app()->response()->send('', 404, $contentType);
+    public static function send404($contentType = 'text/plain') {
+        return static::app()->response()->send('', 404, $contentType);
     }
 
     /**
      * @param array|string $message JSON message as an associated array or JSON string
      * @return Pure_Http_Response
      */
-    public static function sendJson($message = array(), $status = 200)
-    {
-        return self::app()->response()->send(is_array($message) ? json_encode($message) : $message, $status, 'application/json');
+    public static function sendJson($message = array(), $status = 200) {
+        return static::app()->response()->send(is_array($message) ? json_encode($message) : $message, $status, 'application/json');
     }
 
-    public static function config($name, $value = null)
-    {
+    public static function config($name, $value = null) {
         if (func_num_args() > 1) {
-            return self::app()->config($name, $value);
+            return static::app()->config($name, $value);
         } else {
-            return self::app()->config($name);
+            return static::app()->config($name);
         }
     }
 
@@ -159,45 +146,41 @@ class Pure
      * @param string $value
      * @return string
      */
-    public static function url($name = 'rewrite_base', $value = null)
-    {
+    public static function url($name = 'rewrite_base', $value = null) {
         if (func_num_args() > 1) {
-            return self::app()->url($name, $value);
+            return static::app()->url($name, $value);
         } else {
-            return self::app()->url($name);
+            return static::app()->url($name);
         }
     }
 
-    public static function urlIs($path = "")
-    {
-        if (self::router()->currentRoute->path == '*') {
+    public static function urlIs($path = "") {
+        if (static::router()->currentRoute->path == '*') {
             return false;
         }
-        if (is_object(self::router()->currentRoute)) {
-            return (preg_match(self::router()->currentRoute->regexp, ltrim($path, "/ ")) > 0);
+        if (is_object(static::router()->currentRoute)) {
+            return (preg_match(static::router()->currentRoute->regexp, ltrim($path, "/ ")) > 0);
         }
         return false;
     }
 
-    public static function urlTo($path = "", $query = false, $queryExclude = array(), $escape = true)
-    {
+    public static function urlTo($path = "", $query = false, $queryExclude = array(), $escape = true) {
         $path = trim($path, '/');
         $q = '';
         if ($query === true) {
             $query = array();
         }
         if (is_array($query)) {
-            $q = self::req()->query($query, $queryExclude, $escape);
+            $q = static::req()->query($query, $queryExclude, $escape);
         }
-        return self::url('baserw') . (empty($path) ? '' : ($path . '/')) . $q;
+        return static::url('baserw') . (empty($path) ? '' : ($path . '/')) . $q;
     }
 
-    public static function linkTo($path = '', $content = '', $attributes = array(), $query = false, $queryExclude = array(), $escape = true)
-    {
-        $html = '<a href="' . self::urlTo($path, $query, $queryExclude, $escape) . '" ';
+    public static function linkTo($path = '', $content = '', $attributes = array(), $query = false, $queryExclude = array(), $escape = true) {
+        $html = '<a href="' . static::urlTo($path, $query, $queryExclude, $escape) . '" ';
 
         $p = explode('?', $path);
-        if (self::urlIs($p[0])) {
+        if (static::urlIs($p[0])) {
             $attributes['class'] = isset($attributes['class']) ? ($attributes['class'] . ' active') : 'active';
         }
 
@@ -213,27 +196,24 @@ class Pure
      * @param string $value
      * @return string
      */
-    public static function path($name = 'root', $value = null)
-    {
+    public static function path($name = 'root', $value = null) {
         if (func_num_args() > 1) {
-            return self::app()->path($name, $value);
+            return static::app()->path($name, $value);
         } else {
-            return self::app()->path($name);
+            return static::app()->path($name);
         }
     }
 
-    public static function engine($name, $value = null)
-    {
+    public static function engine($name, $value = null) {
         if (func_num_args() > 1) {
-            return self::app()->engine($name, $value);
+            return static::app()->engine($name, $value);
         } else {
-            return self::app()->engine($name);
+            return static::app()->engine($name);
         }
     }
 
-    public static function flag($name, $enable = null)
-    {
-        return self::app()->flag($name, $enable);
+    public static function flag($name, $enable = null) {
+        return static::app()->flag($name, $enable);
     }
 
     /**
@@ -243,8 +223,7 @@ class Pure
      * @param string $strValue
      * @return string|false
      */
-    public static function env($name, $strValue = null)
-    {
+    public static function env($name, $strValue = null) {
         if (func_num_args() > 1) {
             $_ENV[$name] = $strValue;
             putenv($name . '=' . $strValue);
@@ -260,12 +239,11 @@ class Pure
      * @param mixed $value
      * @return mixed
      */
-    public static function data($name, $value = null)
-    {
+    public static function data($name, $value = null) {
         if (func_num_args() > 1) {
-            return self::app()->data($name, $value);
+            return static::app()->data($name, $value);
         } else {
-            return self::app()->data($name);
+            return static::app()->data($name);
         }
     }
 
@@ -276,12 +254,11 @@ class Pure
      * @param mixed $value
      * @return mixed
      */
-    public static function globals($name, $value = null)
-    {
-        if (is_array($name) or (func_num_args() > 1)) {
-            return self::app()->templating()->set($name, $value);
+    public static function globals($name, $value = null) {
+        if (is_array($name) or ( func_num_args() > 1)) {
+            return static::app()->view()->set($name, $value);
         } else {
-            return self::app()->templating()->get($name);
+            return static::app()->view()->get($name);
         }
     }
 
@@ -289,9 +266,8 @@ class Pure
      * Adds new middleware to the stack
      * @param callable $callback
      */
-    public static function bind($callback)
-    {
-        self::app()->bind($callback);
+    public static function bind($callback) {
+        static::app()->bind($callback);
     }
 
     /**
@@ -303,9 +279,8 @@ class Pure
      * @return \Pure_Http_Route
      * @throws InvalidArgumentException
      */
-    public static function map($method, $path, $callback, array $options = array())
-    {
-        return self::router()->map($method, $path, $callback, $options);
+    public static function map($method, $path, $callback, array $options = array()) {
+        return static::router()->map($method, $path, $callback, $options);
     }
 
     /**
@@ -316,9 +291,8 @@ class Pure
      * @return \Pure_Http_Route
      * @throws InvalidArgumentException
      */
-    public static function get($path, $callback, array $options = array())
-    {
-        return self::map("get", $path, $callback, $options);
+    public static function get($path, $callback, array $options = array()) {
+        return static::map("get", $path, $callback, $options);
     }
 
     /**
@@ -329,9 +303,8 @@ class Pure
      * @return \Pure_Http_Route
      * @throws InvalidArgumentException
      */
-    public static function post($path, $callback, array $options = array())
-    {
-        return self::map("post", $path, $callback, $options);
+    public static function post($path, $callback, array $options = array()) {
+        return static::map("post", $path, $callback, $options);
     }
 
     /**
@@ -342,9 +315,8 @@ class Pure
      * @return \Pure_Http_Route
      * @throws InvalidArgumentException
      */
-    public static function put($path, $callback, array $options = array())
-    {
-        return self::map("put", $path, $callback, $options);
+    public static function put($path, $callback, array $options = array()) {
+        return static::map("put", $path, $callback, $options);
     }
 
     /**
@@ -355,9 +327,8 @@ class Pure
      * @return \Pure_Http_Route
      * @throws InvalidArgumentException
      */
-    public static function delete($path, $callback, array $options = array())
-    {
-        return self::map("delete", $path, $callback, $options);
+    public static function delete($path, $callback, array $options = array()) {
+        return static::map("delete", $path, $callback, $options);
     }
 
     /**
@@ -368,9 +339,8 @@ class Pure
      * @return \Pure_Http_Route
      * @throws InvalidArgumentException
      */
-    public static function options($path, $callback, array $options = array())
-    {
-        return self::map("options", $path, $callback, $options);
+    public static function options($path, $callback, array $options = array()) {
+        return static::map("options", $path, $callback, $options);
     }
 
     /**
@@ -381,9 +351,8 @@ class Pure
      * @return \Pure_Http_Route
      * @throws InvalidArgumentException
      */
-    public static function any($path, $callback, array $options = array())
-    {
-        return self::map(null, $path, $callback, $options);
+    public static function any($path, $callback, array $options = array()) {
+        return static::map(null, $path, $callback, $options);
     }
 
     /**
@@ -399,32 +368,37 @@ class Pure
      * @param mixed $validation FILTER_* constant value, regular expression or callable method/function (that returns a boolean i.e. is_string)
      * @return mixed The variable value
      */
-    public static function input($key, $default = null, $validation = null)
-    {
-        return self::req()->input($key, $default, $validation);
+    public static function input($key, $default = null, $validation = null) {
+        return static::req()->input($key, $default, $validation);
     }
 
     /**
      * @return Pure_Html
      */
-    public static function html()
-    {
+    public static function html() {
         return Pure_Html::getInstance();
     }
 
-    public static function log($message, $level = 'DEBUG', $filename = 'app.log', $add_date = true)
-    {
-        $message = $level . ': ' . $message;
-        if ($add_date == true) {
-            $message = '[' . date('Y-m-d H:i:s') . '] ' . $message;
+    /**
+     * Adds a log record at an arbitrary level.
+     *
+     * This method allows for compatibility with common interfaces.
+     *
+     * @param  mixed   $level   The log level
+     * @param  string  $message The log message
+     * @param  array   $context The log context
+     * @return Boolean|\Monolog\Logger Whether the record has been processed or the Monolog\Logger instance
+     */
+    public static function log($level = null, $message = null, array $context = array()) {
+        if (empty($level)) {
+            return static::app()->engine('logger');
         }
-        return file_put_contents(self::path('logs') . $filename, $message . "\n", FILE_APPEND);
+        return static::app()->engine('logger')->log($level, $message, $context);
     }
 
-    public static function cache($key, $expire_time = 3600, $generator_fn = null, $generator_args = array())
-    {
+    public static function cache($key, $expire_time = 3600, $generator_fn = null, $generator_args = array()) {
         $content = false;
-        $file = self::path('cache') . $key;
+        $file = static::path('cache') . $key;
         $file_time = is_readable($file) ? filemtime($file) : 0;
 
         if (is_readable($file) && ((time() - $expire_time) < $file_time)) {
@@ -441,23 +415,21 @@ class Pure
     /**
      * @return Pure_Session
      */
-    public static function session()
-    {
-        if (self::engine('session') == false) {
-            self::engine('session', new Pure_Session(Pure::path('root')));
+    public static function session() {
+        if (static::engine('session') == false) {
+            static::engine('session', new Pure_Session(static::path('root')));
         }
-        return self::engine('session');
+        return static::engine('session');
     }
 
     /**
      * @return Pure_Flash
      */
-    public static function flash()
-    {
-        if (self::engine('flash') == false) {
-            self::engine('flash', new Pure_Flash(self::session()));
+    public static function flash() {
+        if (static::engine('flash') == false) {
+            static::engine('flash', new Pure_Flash(static::session()));
         }
-        return self::engine('flash');
+        return static::engine('flash');
     }
 
     /**
@@ -465,9 +437,8 @@ class Pure
      * @param string $url
      * @param int $status
      */
-    public static function redirect($url, $status = 302)
-    {
-        return self::resp()->redirect($url, $status);
+    public static function redirect($url, $status = 302) {
+        return static::resp()->redirect($url, $status);
     }
 
     /**
@@ -478,15 +449,13 @@ class Pure
      * @param array $context
      * @param int $status
      */
-    public static function flashRedirect($url, $level, $message, array $context = array(), $status = 302)
-    {
-        self::flash()->write($level, $message, $context);
-        self::redirect($url, $status);
+    public static function flashRedirect($url, $level, $message, array $context = array(), $status = 302) {
+        static::flash()->write($level, $message, $context);
+        static::redirect($url, $status);
     }
 
-    public static function messages($name = null, $value = null)
-    {
-        $messages = self::app()->data('messages');
+    public static function messages($name = null, $value = null) {
+        $messages = static::app()->data('messages');
         $numargs = func_num_args();
         if ($numargs == 1) {
             $name = mb_strtoupper($name);
@@ -496,16 +465,6 @@ class Pure
             $messages[$name] = $value;
         }
         return $messages;
-    }
-
-    public static function halt($message = '500 Internal Server Error', $status = '500 Internal Server Error')
-    {
-        if (strpos(strtolower(PHP_SAPI), 'cgi') !== false) {
-            header("Status: " . $status);
-        } else {
-            header($_SERVER['SERVER_PROTOCOL'] . " " . $status);
-        }
-        die('<html><head></head><body><h1>' . $message . '</h1></body></html>');
     }
 
 }
