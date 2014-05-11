@@ -48,11 +48,13 @@
         @include('partials.footer')
         @yield('body_append')
         
-        <div id="happycookies" style="display:none">
-            <div class="happycookies-close"><span>OK</span></div>
+        <div id="happycookies" class="happycookies-fixed" style="display:none">
             <div class="happycookies-text">
                 We use cookies to enhance your experience in our website. By continuing to visit this site you agree to our use
-                of cookies <a href="#" target="_blank">Learn more</a>
+                of cookies
+                
+                <a class="happycookies-accept happycookies-close" href="javascript:;">I Accept</a>
+                <a href="#" target="_blank">Learn more</a>
             </div>
         </div>
         <script src="<?php echo asset('js/app.min.js'); ?>"></script>

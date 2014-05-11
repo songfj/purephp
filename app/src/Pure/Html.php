@@ -118,27 +118,10 @@ class Pure_Html {
      * List of HTML5 void elements (self closing tag)
      * @var array
      */
-    protected static $void_elements = array('area', 'base', 'br', 'col', 'command', 'embed',
+    protected $void_elements = array('area', 'base', 'br', 'col', 'command', 'embed',
         'hr', 'img', 'input', 'keygen', 'link', 'meta', 'param', 'source', 'track', 'wbr');
 
-    /**
-     *
-     * @var Pure_Html 
-     */
-    protected static $instance = null;
-
-    /**
-     * 
-     * @return Pure_Html
-     */
-    public static function getInstance() {
-        if (is_null(self::$instance)) {
-            self::$instance = new self();
-        }
-        return self::$instance;
-    }
-    
-    public static function doc($content, $doctype = '<!DOCTYPE html>', $head = '<html><head></head><body>', $foot = '</body></html>'){
+    public function doc($content, $doctype = '<!DOCTYPE html>', $head = '<html><head></head><body>', $foot = '</body></html>') {
         return implode("\n", array($doctype, $head, $content, $foot));
     }
 
@@ -179,18 +162,16 @@ class Pure_Html {
         if (is_array($content)) {
             foreach ($content as $i => $c) {
                 //option
-                if (($tagname == 'select') or ($tagname == 'optgroup') or
-                        ($tagname == 'datalist')) {
+                if (($tagname == 'select') or ( $tagname == 'optgroup') or ( $tagname == 'datalist')) {
                     $str .= $this->option(array('value' => $i), $c) . "\n";
                     //li
-                } elseif (($tagname == 'ul') or ($tagname == 'ol')) {
+                } elseif (($tagname == 'ul') or ( $tagname == 'ol')) {
                     $str .= $this->li(null, $c) . "\n";
                     //td
                 } elseif ($tagname == 'tr') {
                     $str .= $this->td(null, $c) . "\n";
                     //tr + td
-                } elseif (($tagname == 'table') or ($tagname == 'thead') or
-                        ($tagname == 'tbody') or ($tagname == 'tfoot')) {
+                } elseif (($tagname == 'table') or ( $tagname == 'thead') or ( $tagname == 'tbody') or ( $tagname == 'tfoot')) {
                     if (is_array($c)) {
                         $str .= $this->trOpen() . "\n";
                         foreach ($c as $j => $tdc) {
@@ -204,7 +185,7 @@ class Pure_Html {
                 } elseif ($tagname == 'nav') {
                     $str .= $this->a(array('href' => $i), $c) . "\n";
                     //source
-                } elseif (($tagname == 'audio') or ($tagname == 'video')) {
+                } elseif (($tagname == 'audio') or ( $tagname == 'video')) {
                     $str .= $this->source(array('src' => $i, 'type' => $c)) . "\n";
                 } else {
                     $str .= strval($c) . ' ';
@@ -224,26 +205,27 @@ class Pure_Html {
      * @param string|array $content String or array (for selects, uls, tables, navs, audio or video sources, ...
      * @return type
      */
-    public function htmlTag($tagname, $attr = array(), $content = null) {
+    public function _tag($tagname, $attr = array(), $content = null) {
         $tagname = strtolower($tagname);
-        return $this->htmlTagOpen($tagname, $attr) . $this->htmlContent($tagname, $content) . $this->htmlTagClose($tagname);
+        return $this->_tagOpen($tagname, $attr) . $this->htmlContent($tagname, $content) . $this->_tagClose($tagname);
     }
 
-    public function htmlTagOpen($tagname, $attr = array()) {
+    public function _tagOpen($tagname, $attr = array()) {
         $tagname = strtolower($tagname);
-        if (!in_array($tagname, self::$void_elements)) {
+        if (!in_array($tagname, $this->void_elements)) {
             return "<$tagname" . rtrim($this->htmlAttr($attr)) . ">";
         } else {
             return "<$tagname" . $this->htmlAttr($attr);
         }
     }
 
-    public function htmlTagClose($tagname) {
+    public function _tagClose($tagname) {
         $tagname = strtolower($tagname);
-        if (in_array($tagname, self::$void_elements))
+        if (in_array($tagname, $this->void_elements)) {
             return " />\n";
-        else
+        } else {
             return "</{$tagname}>\n";
+        }
     }
 
     public function htmlAttrPluck($str, $tagname = 'a|img', $attrname = 'href|src') {
@@ -263,18 +245,20 @@ class Pure_Html {
     }
 
     public function htmlAddLinks($str, $target_blank = false) {
-        if ($target_blank)
+        if ($target_blank) {
             $target_blank = ' target="_blank" ';
+        }
         return str_replace('&', '&amp;', preg_replace('/([\w]+:\/\/[\w-?&;#~=\.\/\@]+[\w\/])/i', '<a' .
                         $target_blank . ' href="$1">$1</a>', $str));
     }
 
     public function htmlWrapWords($string, $words, $tagName = 'mark', $tagAttrs = array()) {
-        if (!is_array($words))
+        if (!is_array($words)) {
             $words = array($words);
+        }
         $string = strip_tags($string);
         foreach ($words as $word) {
-            $string = str_ireplace($word, $this->htmlTag($tagName, $tagAttrs, $word), $string);
+            $string = str_ireplace($word, $this->_tag($tagName, $tagAttrs, $word), $string);
         }
         return $string;
     }
@@ -283,11 +267,11 @@ class Pure_Html {
         array_unshift($arguments, str_replace(array('Open', 'Close'), '', $name));
 
         if (preg_match('/Open$/i', $name)) {
-            return call_user_func_array(array($this, 'htmlTagOpen'), $arguments);
+            return call_user_func_array(array($this, '_tagOpen'), $arguments);
         } elseif (preg_match('/Close$/i', $name)) {
-            return call_user_func_array(array($this, 'htmlTagClose'), $arguments);
+            return call_user_func_array(array($this, '_tagClose'), $arguments);
         } else {
-            return call_user_func_array(array($this, 'htmlTag'), $arguments);
+            return call_user_func_array(array($this, '_tag'), $arguments);
         }
     }
 

@@ -64,41 +64,6 @@ a, a:hover{
     padding-top:20px;
 }
 
-#happycookies{
-    position: fixed;
-    left: 0px;
-    right: 0px;
-    bottom: 0px;
-    height: auto;
-    min-height: 21px;
-    z-index: 255;
-    background-color: #222;
-    color: #fff;
-    line-height: 21px;
-    padding: 15px 20px;
-    font-family: arial, sans-serif;
-    font-size: 14px;
-    opacity: 1;
-    background-position: initial initial;
-    background-repeat: initial initial;
-    z-index: 10000;
-}
-#happycookies .happycookies-close{
-    float: right;
-    padding-left: 5px;
-    cursor: pointer;
-    z-index: 100;
-}
-
-#happycookies .happycookies-text{
-    text-align: center;
-}
-
-#happycookies .happycookies-text a{
-    text-decoration-line: none;
-    color: #ddd;
-}
-
 .account-form{
     max-width: 400px;
     margin:20px auto;
@@ -123,4 +88,43 @@ a, a:hover{
 .marketing-text{
     color:#fff;
     text-shadow:1px 1px rgba(0,0,0,0.5);
+}
+
+
+#happycookies {background:#333333; line-height:24px; color:#dfdfdf; text-align:center; padding:5px 20px;font-family: Arial, Helvetica, sans-serif;font-size: 12px;}
+#happycookies.happycookies-fixed {position:fixed; top:49px; left:0; width:100%;z-index:99999;}
+#happycookies p {margin:0; padding:0;}
+#happycookies a {color:#ffffff; display:inline-block; text-decoration:none; padding:0 6px; margin-left:8px;}
+#happycookies a:hover {text-decoration: underline;}
+#happycookies .happycookies-accept {
+    background-color: #4d90fe;
+    //background-image: -webkit-linear-gradient(top,#4d90fe,#4787ed);
+    //border: 1px solid #3079ed;
+    //border-radius: 2px;
+    color: #fff;
+    cursor: pointer;
+    display: inline-block;
+    font-size: 11px;
+    font-weight: bold;
+    height: 20px;
+    line-height: 20px;
+    margin-right: 0px;
+    min-width: 26px;
+    outline: 0;
+    padding: 0 8px;
+    text-align: center;
+    white-space: nowrap;
+    font-family: Arial, Helvetica, sans-serif;
+    text-decoration: none;
+}
+
+#happycookies .happycookies-accept:hover {
+    background: #357ae8;
+    //border: 1px solid #2f5bb7;
+    //border-top: 1px solid #2f5bb7;
+    //box-shadow: inset 0 1px 2px rgba(0,0,0,.3);
+    text-decoration: none;
+}
+#happycookies .happycookies-accept:active, #happycookies .happycookies-accept:focus{
+    box-shadow: inset 0 1px 2px rgba(0,0,0,.3);
 }

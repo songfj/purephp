@@ -66,9 +66,9 @@ class Pure_App {
         $this->config['APP_ENV'] = strtolower($this->config['APP_ENV']);
 
         $this->_initPaths($paths);
-        $this->_initHttp();
+        $this->_initRouting();
         $this->_initConfig();
-        $this->_initVendors();
+        $this->_initEngines();
 
         // (Optional) Init file
         if (is_readable($this->registry['paths']['app'] . 'init.php')) {
@@ -108,7 +108,7 @@ class Pure_App {
         $this->registry['paths'] = $paths;
     }
 
-    private function _initHttp() {
+    private function _initRouting() {
 
         if (!isset($this->config['hasModRewrite'])) {
             $this->config['hasModRewrite'] = (isset($_SERVER['APPLICATION_REWRITE_ENGINE']) && ($_SERVER['APPLICATION_REWRITE_ENGINE'] == 'on'));
@@ -118,8 +118,11 @@ class Pure_App {
             $this->config['useIndexFile'] = ($this->config['hasModRewrite'] === false);
         }
 
-        $this->registry['engines']['request'] = Pure_Http_Request::getInstance();
-        $this->registry['engines']['response'] = Pure_Http_Response::getInstance();
+        // Dispatcher
+        $this->engine('dispatcher', new \Illuminate\Events\Dispatcher());
+
+        $this->registry['engines']['request'] = new Pure_Http_Request();
+        $this->registry['engines']['response'] = new Pure_Http_Response();
         $this->registry['engines']['router'] = new Pure_Http_Router();
 
         // URLs
@@ -153,21 +156,18 @@ class Pure_App {
             $user_config = array();
         }
 
-        $this->config = Pure_Arr::merge($this->config, $user_config);
+        $this->config = array_merge_recursive_replace($this->config, $user_config);
     }
 
-    private function _initVendors() {
+    private function _initEngines() {
         $app = $this;
-            
+
         // Filesystem
         $this->engine('filesystem', new \Illuminate\Filesystem\Filesystem());
-        
-        // Dispatcher
-        $this->engine('dispatcher', new \Illuminate\Events\Dispatcher());
-        
+
         // Views
-        $this->engine('view', new Pure_View($this->path('views'), $this->path('cache').'views/'));
-        
+        $this->engine('view', new Pure_View($this->path('views'), $this->path('cache') . 'views/'));
+
         // Monolog
         $this->engine('logger', new \Monolog\Logger('purephp'));
         $this->engine('logger')->pushHandler(new \Monolog\Handler\StreamHandler($this->path('logs') . 'debug.log', \Monolog\Logger::DEBUG));
@@ -193,23 +193,29 @@ class Pure_App {
 
         // Whoops
         if ($this->config('debug') === true) {
-            $run =  new \Whoops\Run();
+            $run = new \Whoops\Run();
             $run->pushHandler(new \Whoops\Handler\PrettyPageHandler());
             $this->engine('error_handler', $run);
-            
+
             set_error_handler(function($errno, $errstr, $errfile, $errline) use ($app) {
                 $e = new \ErrorException($errstr, $errno, 1, $errfile, $errline);
                 $app->engine('error_handler')->handleException($e);
             }, -1);
-            
+
             set_exception_handler(function($e) use ($app) {
                 $app->engine('error_handler')->handleException($e);
             });
-            
+
             //$run->register();
         } else {
             $this->engine('error_handler', false);
         }
+
+        // Validator
+        $this->engine('validator', new Pure_Validator());
+
+        // HTML generator
+        $this->engine('html', new Pure_Html());
     }
 
     /**
@@ -378,67 +384,6 @@ class Pure_App {
     }
 
     /**
-     * Executes the given or the next middleware (first) or route
-     * @param Pure_Http_Route $route
-     * @return mixed|false The callable return value or false
-     */
-    public function next() {
-        $result = false;
-        if (count($this->registry['middleware']) > 0) { // First execute all middleware
-            $middleware = array_shift($this->registry['middleware']);
-            $result = call_user_func_array($middleware, array($this->request(), $this->response(), new Pure_Http_Route(), $this));
-        } else { // Then execute all router bindings
-            $route = $this->prepareRoute();
-            if ($route != false) {
-                $cb = $this->getCallback(array_shift($route->callbacks));
-                $result = call_user_func_array($cb, array($this->request(), $this->response(), $route, $this));
-            }
-        }
-        return $result ? $result : false;
-    }
-
-    protected function getCallback($callback) {
-        $invalidMsg = 'The argument is not a callable function: ' . print_r($callback, true);
-        if (is_string($callback) and preg_match('/\@/', $callback)) {
-            $cb = explode('@', $callback);
-            if ((count($cb) == 2) and ( class_exists($cb[0]))) {
-                return array(new $cb[0](), $cb[1]);
-            } else {
-                throw new InvalidArgumentException($invalidMsg);
-            }
-        } elseif (!is_callable($callback)) {
-            throw new InvalidArgumentException($invalidMsg);
-        }
-        return $callback;
-    }
-
-    /**
-     * Dispatches the current request against the matched routes
-     * executes the route lop
-     */
-    public function start() {
-        Pure_Dispatcher::getInstance()->trigger('app.before_start', array(), $this);
-        Pure_Dispatcher::getInstance()->trigger('app.before_dispatch', array(), $this);
-        $this->router()->dispatch($this->request());
-        Pure_Dispatcher::getInstance()->trigger('app.dispatch', array(), $this);
-        // start loop
-        $this->next();
-        Pure_Dispatcher::getInstance()->trigger('app.start', array(), $this);
-    }
-
-    protected function prepareRoute($route = null) {
-        if ($route === null) {
-            $route = $this->router()->next();
-        }
-
-        if ($route instanceof Pure_Http_Route) {
-            $path = trim($route->options['basepath'], " /");
-            $this->url('route', $this->url('base') . (empty($path) ? '' : ($path . '/')));
-        }
-        return $route;
-    }
-
-    /**
      *
      * @param type $instanceName
      * @return string
@@ -462,6 +407,67 @@ class Pure_App {
             header($_SERVER['SERVER_PROTOCOL'] . " " . $status);
         }
         die('<html><head></head><body><h1>' . $message . '</h1></body></html>');
+    }
+
+    /**
+     * Executes the given or the next middleware (first) or route
+     * @param Pure_Http_Route $route
+     * @return mixed|false The callable return value or false
+     */
+    public function next() {
+        $result = false;
+        if (count($this->registry['middleware']) > 0) { // First execute all middleware
+            $middleware = array_shift($this->registry['middleware']);
+            $result = call_user_func_array($middleware, array($this->request(), $this->response(), new Pure_Http_Route(), $this));
+        } else { // Then execute all router bindings
+            $route = $this->prepareRoute();
+            if ($route != false) {
+                $cb = $this->getCallback(array_shift($route->callbacks));
+                $result = call_user_func_array($cb, array($this->request(), $this->response(), $route, $this));
+            }
+        }
+        return $result ? $result : false;
+    }
+
+    protected function prepareRoute($route = null) {
+        if ($route === null) {
+            $route = $this->router()->next();
+        }
+
+        if ($route instanceof Pure_Http_Route) {
+            $path = trim($route->options['basepath'], " /");
+            $this->url('route', $this->url('base') . (empty($path) ? '' : ($path . '/')));
+        }
+        return $route;
+    }
+
+    protected function getCallback($callback) {
+        $invalidMsg = 'The argument is not a callable function: ' . print_r($callback, true);
+        if (is_string($callback) and preg_match('/\@/', $callback)) {
+            $cb = explode('@', $callback);
+            if ((count($cb) == 2) and ( class_exists($cb[0]))) {
+                return array(new $cb[0](), $cb[1]);
+            } else {
+                throw new InvalidArgumentException($invalidMsg);
+            }
+        } elseif (!is_callable($callback)) {
+            throw new InvalidArgumentException($invalidMsg);
+        }
+        return $callback;
+    }
+
+    /**
+     * Dispatches the current request against the matched routes
+     * executes the route lop
+     */
+    public function start() {
+        Pure_Facade::dispatcher()->fire('app.before_start', array('sender' => $this));
+        Pure_Facade::dispatcher()->fire('app.before_dispatch', array('sender' => $this));
+        $this->router()->dispatch($this->request());
+        Pure_Facade::dispatcher()->fire('app.dispatch', array('sender' => $this));
+        // start loop
+        $this->next();
+        Pure_Facade::dispatcher()->fire('app.start', array('sender' => $this));
     }
 
 }

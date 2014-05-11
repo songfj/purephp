@@ -13,13 +13,13 @@
         "php": ">=5.3.3",
         "filp/whoops":"1.1.*",
         "monolog/monolog":"1.9.*",
+        "ircmaxell/password-compat": "1.0.3",
         "gabordemooij/redbean": "3.5.*",
         "illuminate/view": "4.1.*",
         "swiftmailer/swiftmailer": "5.2.*"
     },
     "autoload": {
         "psr-0": {
-            "Pure": "vendor/mjolnic/purephp/",
             "": "app/src/"
         }
     },

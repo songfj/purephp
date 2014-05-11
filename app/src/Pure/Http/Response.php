@@ -57,7 +57,7 @@ class Pure_Http_Response {
      * Message texts
      * @var array 
      */
-    public static $messages = array(
+    protected static $messages = array(
         //Informational 1xx
         100 => 'Continue',
         101 => 'Switching Protocols',
@@ -107,21 +107,9 @@ class Pure_Http_Response {
         504 => 'Gateway Timeout',
         505 => 'HTTP Version Not Supported'
     );
-    protected static $instance;
 
     public function __construct($serverProtocol = null) {
         $this->serverProtocol = !empty($serverProtocol) ? $serverProtocol : (isset($_SERVER["SERVER_PROTOCOL"]) ? $_SERVER["SERVER_PROTOCOL"] : 'HTTP/1.1');
-    }
-
-    /**
-     * 
-     * @return Pure_Http_Response
-     */
-    public static function getInstance() {
-        if (self::$instance == null) {
-            self::$instance = new self();
-        }
-        return self::$instance;
     }
 
     /**
@@ -238,7 +226,7 @@ class Pure_Http_Response {
         $this->header("Content-Length", strlen($this->body));
 
         // Trigger event
-        Pure_Dispatcher::getInstance()->trigger('response.before_send', array(), $this);
+        Pure_Facade::dispatcher()->fire('response.before_send', array('sender'=>$this));
 
         $this->sendStatusHeader($this->status)
                 ->sendHeaders()
@@ -249,7 +237,7 @@ class Pure_Http_Response {
         }
 
         // Trigger event
-        Pure_Dispatcher::getInstance()->trigger('response.send', array(), $this);
+        Pure_Facade::dispatcher()->fire('response.send', array('sender'=>$this));
 
         return $this;
     }

@@ -6,21 +6,9 @@
 class Pure_Http_Client {
 
     protected $baseUrl;
-    protected static $instance;
 
     public function __construct($baseUrl = '') {
         $this->setBaseUrl($baseUrl);
-    }
-
-    /**
-     * 
-     * @return Pure_Http_Client
-     */
-    public static function getInstance() {
-        if (self::$instance == null) {
-            self::$instance = new self();
-        }
-        return self::$instance;
     }
 
     /**
@@ -99,7 +87,7 @@ class Pure_Http_Client {
             $result = new Pure_Http_Response();
             $result->body = $body;
             $result->status = intval($http_status);
-            $result->headers = self::parseHeaderStr($header);
+            $result->headers = $this->parseHeaderStr($header);
         } catch (Exception $exc) {
             error_log($exc->getMessage());
         }
@@ -209,7 +197,7 @@ class Pure_Http_Client {
         // set method
         array_unshift($arguments, (count($method) > 1) ? strtoupper($method[1]) : "GET");
         // set uri
-        array_unshift($arguments, strtolower(Pure_Str::uncamelize(preg_replace('/^(get|post|put|delete|head|options|patch|trace)/i', '', $name), "/")));
+        array_unshift($arguments, strtolower(humanize(preg_replace('/^(get|post|put|delete|head|options|patch|trace)/i', '', $name), "/")));
 
         // call
         return call_user_func_array(array($this, "call"), $arguments);
@@ -228,7 +216,7 @@ class Pure_Http_Client {
      * @param string $headerStr
      * @return array
      */
-    public static function parseHeaderStr($headerStr) {
+    public function parseHeaderStr($headerStr) {
         $retVal = array();
         $fields = explode("\r\n", preg_replace('/\x0D\x0A[\x09\x20]+/', ' ', $headerStr));
         foreach ($fields as $field) {

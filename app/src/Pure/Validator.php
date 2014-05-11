@@ -15,7 +15,7 @@ class Pure_Validator {
      * @param mixed $validation FILTER_* constant value, regular expression or callable method/function (that returns a boolean i.e. is_string)
      * @return mixed The variable value
      */
-    public static function check(array $arr, $key, $default = null, $validation = null) {
+    public function check(array $arr, $key, $default = null, $validation = null) {
         if ($validation === true) {
             // has
             return isset($arr[$key]);
@@ -44,7 +44,7 @@ class Pure_Validator {
         }
     }
 
-    public static function sanitize(array $arr, $removeHtml = true, $replacement = ' ', $replaceChars = array('>', '<', '\\', '/', '"', '\''), $trimChars = ' .,-_') {
+    public function sanitize(array $arr, $removeHtml = true, $replacement = ' ', $replaceChars = array('>', '<', '\\', '/', '"', '\''), $trimChars = ' .,-_') {
         if ($removeHtml) {
             foreach ($arr as $k => $v) {
                 $arr[$k] = trim(str_replace($replaceChars, $replacement, strip_tags($v)), $trimChars);
@@ -57,7 +57,7 @@ class Pure_Validator {
         return $arr;
     }
 
-    public static function validate(array $arr, array $validations) {
+    public function validate(array $arr, array $validations) {
         $errors = array();
 
         foreach ($validations as $field => $validation) {

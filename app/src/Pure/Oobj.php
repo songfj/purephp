@@ -11,7 +11,7 @@ class Pure_Oobj extends Pure_Obj {
         if (method_exists($this, $fn)) {
             return $this->$fn();
         } else {
-            return $this->getProp($name);
+            return $this->getProperty($name);
         }
     }
 
@@ -20,7 +20,7 @@ class Pure_Oobj extends Pure_Obj {
         if (method_exists($this, $fn)) {
             $this->$fn($value);
         } else {
-            $this->setProp($name, $value);
+            $this->setProperty($name, $value);
         }
     }
 
@@ -46,30 +46,11 @@ class Pure_Oobj extends Pure_Obj {
     }
 
     /**
-     * Returns the real property value without triggering the magic getter
-     * @param string $name
-     * @return mixed
-     */
-    public function getProp($name) {
-        return parent::__get($name);
-    }
-
-    /**
-     * Sets a property value without triggering the magic setter
-     * @param string $name
-     * @return static|this
-     */
-    public function setProp($name, $value) {
-        parent::__set($name, $value);
-        return $this;
-    }
-
-    /**
      * Imports properties using magic getter functions (if exists)
      * @param array $properties
      * @return static|this
      */
-    public function import(array $properties) {
+    public function box(array $properties) {
         foreach ($properties as $k => $v) {
             $this->$k = $v;
         }
@@ -80,29 +61,12 @@ class Pure_Oobj extends Pure_Obj {
      * Exports properties using magic getter functions (if exists)
      * @return array
      */
-    public function export() {
+    public function unbox() {
         $props = array();
         foreach ($this->props as $k => $v) {
             $props[$k] = $this->$k;
         }
         return $props;
-    }
-
-    /**
-     * Exports properties without using magic getter functions
-     * @return array
-     */
-    public function exportProps() {
-        return parent::export();
-    }
-
-    /**
-     * Imports properties without using magic setter functions
-     * @param array $properties
-     * @return MagicObject
-     */
-    public function importProps(array $properties) {
-        return parent::import($properties);
     }
 
 }

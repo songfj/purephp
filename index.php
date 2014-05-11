@@ -54,7 +54,7 @@ $paths = array(
 ini_set('error_log', $paths['logs'] . 'php_error.log');
 
 // Helpers must be included before the Laravel ones
-include_once $paths['vendor'].'mjolnic/purephp/helpers.php';
+include_once $paths['app'].'src/helpers.php';
 
 $loader = require $paths['vendor'] . 'autoload.php';
 

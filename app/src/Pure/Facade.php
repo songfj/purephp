@@ -60,7 +60,6 @@ class Pure_Facade {
         return static::app()->db();
     }
 
-    
     /**
      * 
      * @return \Illuminate\Filesystem\Filesystem
@@ -69,7 +68,6 @@ class Pure_Facade {
         return static::app()->engine('filesystem');
     }
 
-    
     /**
      * 
      * @return \Illuminate\Events\Dispatcher

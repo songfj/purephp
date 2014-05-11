@@ -1,13 +1,13 @@
 # PurePHP Framework
 
-**A lightweight RESTFul framework for PHP 5.3.3+**
+**A lightweight RESTFul framework for PHP 5.3.7+**
 
 IMPORTANT: I am discontinuing the PHP 5.2 support, but if you are still interested there is a (unmaintained) php5.2 branch
 
 ## Requirements
 
 * Apache 2 server (not tested in others)
-* PHP 5.3.3 or later
+* PHP 5.3.7 or later
 
 ## Setup
 
@@ -21,15 +21,15 @@ Finally navigate to the folder url
 
 ## Features
 
-* Ultra lightweight: the core is basically a HTTP routing engine and utility classes
+* Ultra lightweight: the core is basically a HTTP routing engine and other basic libraries
 * Ultra Fast (see benchmarks)
 * Decoupled engines (you can replace them easily)
-* Event listener / dispatcher
-* Flash messaging
-* Basic templating engine (pure php)
-* Helpers based in Laravel 4
-* Support for Laravel Blade templates and array and string helpers
+* Event listener / dispatcher (Laravel Dispatcher)
+* Flash messaging and Session manager (php native wrapper)
+* Laravel 4 helpers (for arrays and strings)
+* Integration with Laravel Blade templates
 * Integration with Whoops, Monolog, RedBean and SwiftMailer
+* password_compat integration
 
 ## Benchmarks
 

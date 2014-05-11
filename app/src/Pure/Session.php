@@ -6,28 +6,11 @@ class Pure_Session implements ArrayAccess {
     protected $prefix;
     protected $started = false;
 
-    /**
-     *
-     * @var Pure_Session 
-     */
-    protected static $instance = null;
-
     public function __construct($name = 'default', $prefix = 'sess_', $autostart = false) {
         $this->name = $prefix . md5(strtolower($name));
         if ($autostart) {
             $this->start();
         }
-    }
-
-    /**
-     * 
-     * @return Pure_Session
-     */
-    public static function getInstance() {
-        if (self::$instance == null) {
-            self::$instance = new self();
-        }
-        return self::$instance;
     }
 
     public function __get($name) {

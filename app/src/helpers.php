@@ -93,6 +93,81 @@ function url($path = '', $parameters = array(), $is_secure = null, $use_rewrite_
     return $is_secure ? (preg_replace('/^https?/', 'https', $baseUrl)) : ($baseUrl . ltrim($path, '/') . $query);
 }
 
-function link_to($path = '', $content = '', $attributes = array(), $query = false, $queryExclude = array(), $queryEscape = true){
+/**
+ * HTML Element
+ * @param string $tagname
+ * @param array $attr
+ * @param string|array $content String or array (for selects, uls, tables, navs, audio or video sources, ...
+ * @return string
+ */
+function el($tagname, $attr = array(), $content = null) {
+    return Pure_Facade::html()->_tag($tagname, $attr, $content);
+}
+
+/**
+ * HTML Element Open
+ * @param string $tagname
+ * @param array $attr
+ * @return string
+ */
+function el_open($tagname, $attr = array()) {
+    return Pure_Facade::html()->_tagOpen($tagname, $attr);
+}
+
+/**
+ * HTML Element Close
+ * @param string $tagname
+ * @return string
+ */
+function el_close($tagname) {
+    return Pure_Facade::html()->_tagClose($tagname);
+}
+
+function link_to($path = '', $content = '', $attributes = array(), $query = false, $queryExclude = array(), $queryEscape = true) {
     return Pure_Facade::linkTo($path, $content, $attributes, $query, $queryExclude, $queryEscape);
+}
+
+/**
+ * Humanizes a camelized string, separating words (if not using a word separator)
+ * 
+ * @param string $str Camelized string
+ * @param string $glue Delimiter that will be used for separating words
+ * @return string 
+ */
+function humanize($str, $glue = ' ') {
+    preg_match_all('!([A-Z][A-Z0-9]*(?=$|[A-Z][a-z0-9])|[A-Za-z][a-z0-9]+)!', $str, $matches);
+    return implode($glue, (isset($matches[0]) and is_array($matches[0])) ? $matches[0] : array());
+}
+
+/**
+ * Merges arrays recursively with the same behaviour as array_merge,
+ * not converting a non-array value in an array with the multiple different values
+ * @param mixed $array_1 $array_2, $array_3, ...
+ * @return type 
+ */
+function array_merge_recursive_replace() {
+    if (func_num_args() < 2) {
+        trigger_error(__METHOD__ . ' needs two or more array arguments', E_USER_WARNING);
+        return;
+    }
+    $arrays = func_get_args();
+    $merged = array();
+    while ($arrays) {
+        $array = array_shift($arrays);
+        if (!is_array($array)) {
+            trigger_error(__METHOD__ . ' encountered a non array argument', E_USER_WARNING);
+            return;
+        }
+        if (!$array)
+            continue;
+        foreach ($array as $key => $value)
+            if (is_string($key))
+                if (is_array($value) && array_key_exists($key, $merged) && is_array($merged[$key]))
+                    $merged[$key] = call_user_func(__METHOD__, $merged[$key], $value);
+                else
+                    $merged[$key] = $value;
+            else
+                $merged[] = $value;
+    }
+    return $merged;
 }

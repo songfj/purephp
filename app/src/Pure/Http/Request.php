@@ -111,12 +111,6 @@ class Pure_Http_Request {
     public $ip;
 
     /**
-     *
-     * @var Pure_Http_Request 
-     */
-    protected static $instance = null;
-
-    /**
      * 
      * @param boolean $populate Populate original request?
      */
@@ -126,20 +120,9 @@ class Pure_Http_Request {
         }
     }
 
-    /**
-     * 
-     * @return Pure_Http_Request
-     */
-    public static function getInstance() {
-        if (self::$instance == null) {
-            self::$instance = new self(true);
-        }
-        return self::$instance;
-    }
-
     public function populate() {
         // Trigger event
-        Pure_Dispatcher::getInstance()->trigger('request.before_populate', array(), $this);
+        Pure_Facade::dispatcher()->fire('request.before_populate', array('sender'=>$this));
 
         $script_name = (isset($_SERVER["SCRIPT_NAME"]) ? $_SERVER["SCRIPT_NAME"] : '');
 
@@ -205,7 +188,7 @@ class Pure_Http_Request {
         $this->segments = explode('/', $this->path);
 
         // Trigger event
-        Pure_Dispatcher::getInstance()->trigger('request.populate', array(), $this);
+        Pure_Facade::dispatcher()->fire('request.populate', array('sender'=>$this));
 
         return $this;
     }
