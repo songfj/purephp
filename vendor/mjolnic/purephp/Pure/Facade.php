@@ -60,45 +60,30 @@ class Pure_Facade {
         return static::app()->db();
     }
 
+    
     /**
-     * Listens to an event
-     *
-     * @param string $event The event name
-     * @param callable $handler Callable function to be triggered when the event is emited
-     * @param int $priority Handler priority
-     * @param mixed $emitter Object to listen to
+     * 
+     * @return \Illuminate\Filesystem\Filesystem
      */
-    public static function on($event, $handler, $priority = 0, $emitter = null) {
-        return Pure_Dispatcher::getInstance()->on($event, $handler, $priority, $emitter);
+    public static function filesystem() {
+        return static::app()->engine('filesystem');
     }
 
+    
     /**
-     *
-     * @param string $event Event to be unlistened
-     * @param mixed $emitter Object that emits the event, if null a global event is unlistened
-     * @return int Total of unregistered handlers
+     * 
+     * @return \Illuminate\Events\Dispatcher
      */
-    public static function off($event, $emitter = null) {
-        return Pure_Dispatcher::getInstance()->off($event, $emitter);
-    }
-
-    /**
-     *
-     * @param string $event Event name
-     * @param array $args Arguments that will be passed to the callable handler, after the dispatcher and emitter instances
-     * @param mixed $emitter Object that emits the event, if null a global event is emitted
-     * @return int The total handlers that listened to the event
-     */
-    public static function trigger($event, array $args = array(), $emitter = null) {
-        return Pure_Dispatcher::getInstance()->trigger($event, $args, $emitter);
+    public static function dispatcher() {
+        return static::app()->engine('dispatcher');
     }
 
     /**
      *
      * @return string|Pure_Http_Response
      */
-    public static function load($tpl, $locals = array(), $options = array(), $asResponse = false, $status = 200, $contentType = 'text/html') {
-        $content = static::app()->view()->load($tpl, $locals, $options);
+    public static function load($view, $locals = array(), $asResponse = false, $status = 200, $contentType = 'text/html') {
+        $content = static::app()->view()->load($view, $locals);
         if ($asResponse === true) {
             static::app()->response()->body = $content;
             static::app()->response()->status($status);
@@ -112,8 +97,8 @@ class Pure_Facade {
      *
      * @return Pure_Http_Response
      */
-    public static function send($tpl, $locals = array(), $options = array(), $status = 200, $contentType = 'text/html') {
-        return static::app()->response()->send(static::load($tpl, $locals, $options), $status, $contentType);
+    public static function send($view, $locals = array(), $status = 200, $contentType = 'text/html') {
+        return static::app()->response()->send(static::load($view, $locals, false), $status, $contentType);
     }
 
     /**
@@ -164,20 +149,20 @@ class Pure_Facade {
         return false;
     }
 
-    public static function urlTo($path = "", $query = false, $queryExclude = array(), $escape = true) {
+    public static function urlTo($path = "", $query = false, $queryExclude = array(), $queryEscape = true) {
         $path = trim($path, '/');
         $q = '';
         if ($query === true) {
             $query = array();
         }
         if (is_array($query)) {
-            $q = static::req()->query($query, $queryExclude, $escape);
+            $q = static::req()->query($query, $queryExclude, $queryEscape);
         }
-        return static::url('baserw') . (empty($path) ? '' : ($path . '/')) . $q;
+        return static::url('rewrite_base') . (empty($path) ? '' : ($path . '/')) . $q;
     }
 
-    public static function linkTo($path = '', $content = '', $attributes = array(), $query = false, $queryExclude = array(), $escape = true) {
-        $html = '<a href="' . static::urlTo($path, $query, $queryExclude, $escape) . '" ';
+    public static function linkTo($path = '', $content = '', $attributes = array(), $query = false, $queryExclude = array(), $queryEscape = true) {
+        $html = '<a href="' . static::urlTo($path, $query, $queryExclude, $queryEscape) . '" ';
 
         $p = explode('?', $path);
         if (static::urlIs($p[0])) {
@@ -248,18 +233,25 @@ class Pure_Facade {
     }
 
     /**
-     * Gets or sets template global variables (template scope, not php globals)
+     * Sets template global variables (template scope, not php globals)
      *
-     * @param string $name
+     * @param string $key
      * @param mixed $value
      * @return mixed
      */
-    public static function globals($name, $value = null) {
-        if (is_array($name) or ( func_num_args() > 1)) {
-            return static::app()->view()->set($name, $value);
-        } else {
-            return static::app()->view()->get($name);
-        }
+    public static function share($key, $value = null) {
+        return self::app()->view()->set($key, $value);
+    }
+
+    /**
+     * Gets template global variables (template scope, not php globals)
+     *
+     * @param string $key
+     * @param mixed $default
+     * @return mixed
+     */
+    public static function shared($key, $default = null) {
+        return self::app()->view()->get($key, $default);
     }
 
     /**

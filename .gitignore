@@ -10,7 +10,7 @@ Thumbs.db
 *.log
 *.cache
 *.cache.html
-/app/data/logs/*
+/app/data/*
 /content/uploads/*
 *.sqlite
 .setup

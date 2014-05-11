@@ -42,6 +42,7 @@ $paths = array(
     'config' => $rootpath . 'app/config/',
     'vendor' => $rootpath . 'vendor/',
     'data' => $rootpath . 'app/data/',
+    'cache' => $rootpath . 'app/data/cache/',
     'logs' => $rootpath . 'app/data/logs/',
     'content' => $rootpath . 'content/',
     'uploads' => $rootpath . 'content/uploads/',
@@ -51,6 +52,9 @@ $paths = array(
 
 // Set initial error log file
 ini_set('error_log', $paths['logs'] . 'php_error.log');
+
+// Helpers must be included before the Laravel ones
+include_once $paths['vendor'].'mjolnic/purephp/helpers.php';
 
 $loader = require $paths['vendor'] . 'autoload.php';
 

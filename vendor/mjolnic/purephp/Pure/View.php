@@ -1,116 +1,120 @@
 <?php
 
+use Illuminate\View;
+
 /**
- * Basic PHP templating engine
+ * Blade templating engine wrapper for PurePHP
  */
 class Pure_View {
 
     /**
      *
-     * @var string Templates path
+     * @var View\Environment
      */
-    public $path = null;
+    protected $environment;
 
     /**
      *
-     * @var string Default file extension
+     * @var View\FileViewFinder 
      */
-    public $extension = '.php';
+    protected $fileViewFinder;
 
     /**
      *
-     * @var array Globally available template vars
+     * @var View\Engines\EngineResolver
      */
-    public $globals = array();
+    protected $engineResolver;
 
     /**
      *
-     * @var array Last loaded template options
+     * @var View\Compilers\BladeCompiler
      */
-    public $options = array();
+    protected $bladeCompiler;
 
     /**
      *
-     * @var array Last loaded template locals
+     * @var View\Engines\PhpEngine
      */
-    public $locals = array();
+    protected $phpEngine;
 
     /**
-     * Last loaded template content
-     * @var string
+     *
+     * @var View\Engines\CompilerEngine
      */
-    public $content = null;
+    protected $bladeEngine;
 
     /**
      * 
-     * @param string $path Default file path
-     * @param string $extension Default file extension
+     * @param string $viewsPath Views path
+     * @param string $cachePath Views cache path
      */
-    public function __construct($path, $extension = '.php') {
-        $this->path = $path;
-        $this->extension = $extension;
-    }
-
-    public function __get($name) {
-        return $this->globals[$name];
-    }
-
-    public function __set($name, $value = null) {
-        $this->globals[$name] = $value;
-    }
-
-    public function get($name) {
-        return $this->__get($name);
-    }
-
-    public function set($name, $value = null) {
-        if (is_array($name)) {
-            foreach ($name as $k => $v) {
-                $this->__set($k, $v);
-            }
-        } else {
-            $this->__set($name, $value);
+    public function __construct($viewsPath, $cachePath) {
+        $this->engineResolver = new View\Engines\EngineResolver();
+        $this->fileViewFinder = new View\FileViewFinder(Pure_Facade::filesystem(), array(rtrim($viewsPath, '/\\')), array('blade.php', 'php'));
+        $this->environment = new Illuminate\View\Environment($this->engineResolver, $this->fileViewFinder, Pure_Facade::dispatcher());
+        if (!is_dir($cachePath)) {
+            mkdir($cachePath, 0755, true);
         }
+        $this->bladeCompiler = new View\Compilers\BladeCompiler(Pure_Facade::filesystem(), rtrim($cachePath, '/\\'));
+        $phpEngine = new View\Engines\PhpEngine($this->bladeCompiler);
+        $bladeEngine = new View\Engines\CompilerEngine($this->bladeCompiler);
+        $this->engineResolver->register('php', function() use($phpEngine) {
+            return $phpEngine;
+        });
+        $this->engineResolver->register('blade', function() use($bladeEngine) {
+            return $bladeEngine;
+        });
+        $this->bladeEngine = $bladeEngine;
+        $this->phpEngine = $phpEngine;
     }
 
-    public function load($tpl, array $locals = array(), array $options = array()) {
-        ob_start();
-        if (($locals !== null) and is_array($locals)) {
-            $locals = Pure_Arr::merge($this->globals, $locals);
-        } else {
-            $locals = array();
-        }
-        $this->options = $options;
-        $this->locals = $locals;
-        $this->locals['tpl_name'] = $tpl;
-        $this->locals['tpl_file'] = file_exists($tpl) ? $tpl : ($this->path . $tpl . $this->extension);
-        $this->locals['tpl_id'] = Pure_Str::slugize($tpl);
-
-        // Trigger event
-        Pure_Dispatcher::getInstance()->trigger('tpl.before_load', array(), $this);
-
-        extract($this->locals);
-
-        $cwd = realpath(getcwd());
-
-        // Change dir so the includes are always relative to this file
-        chdir(realpath(dirname($this->locals['tpl_file'])));
-
-        include $this->locals['tpl_file'];
-
-        $this->content = ob_get_clean();
-
-        // Trigger event
-        Pure_Dispatcher::getInstance()->trigger('tpl.load', array(), $this);
-
-        // restore current working dir
-        chdir($cwd);
-
-        return $this->content;
+    public function __get($key) {
+        return $this->environment->shared($key, null);
     }
 
-    public function render($tpl, array $locals = array(), array $options = array()) {
-        echo $this->load($tpl, $locals, $options);
+    public function __set($key, $value = null) {
+        return $this->environment->share($key, $value);
+    }
+
+    public function get($key, $default = null) {
+        return $this->environment->shared($key, $default);
+    }
+
+    public function set($key, $value = null) {
+        return $this->environment->share($key, $value);
+    }
+
+    /**
+     * 
+     * @param string $view
+     * @param array $locals
+     * @return \Illuminate\View\View
+     */
+    public function make($view, array $locals = array()) {
+        $viewFile = $this->fileViewFinder->find($view);
+        $viewEngine = preg_match('/\.blade\.php$/', $viewFile) ? $this->bladeEngine : $this->phpEngine;
+        $viewObj = new Illuminate\View\View(
+                $this->environment, $viewEngine, $view, $viewFile, array_merge(array('viewname' => $view), $locals));
+        return $viewObj;
+    }
+
+    /**
+     * 
+     * @param string $view
+     * @param array $locals
+     * @return string
+     */
+    public function load($view, array $locals = array()) {
+        return $this->make($view, $locals)->render();
+    }
+
+    /**
+     * 
+     * @param string $view
+     * @param array $locals
+     */
+    public function render($view, array $locals = array()) {
+        echo $this->load($view, $locals);
     }
 
 }

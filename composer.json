@@ -21,10 +21,7 @@
         "psr-0": {
             "Pure": "vendor/mjolnic/purephp/",
             "": "app/src/"
-        },
-        "files": [
-            "vendor/mjolnic/purephp/helpers.php"
-        ]
+        }
     },
     "scripts": {
         

@@ -121,7 +121,6 @@ class Pure_App {
         $this->registry['engines']['request'] = Pure_Http_Request::getInstance();
         $this->registry['engines']['response'] = Pure_Http_Response::getInstance();
         $this->registry['engines']['router'] = new Pure_Http_Router();
-        $this->registry['engines']['view'] = new Pure_View($this->path('views'));
 
         // URLs
         $this->registry['urls']['domain'] = $this->request()->protocol . '://' . $this->request()->host . '/';
@@ -158,6 +157,17 @@ class Pure_App {
     }
 
     private function _initVendors() {
+        $app = $this;
+            
+        // Filesystem
+        $this->engine('filesystem', new \Illuminate\Filesystem\Filesystem());
+        
+        // Dispatcher
+        $this->engine('dispatcher', new \Illuminate\Events\Dispatcher());
+        
+        // Views
+        $this->engine('view', new Pure_View($this->path('views'), $this->path('cache').'views/'));
+        
         // Monolog
         $this->engine('logger', new \Monolog\Logger('purephp'));
         $this->engine('logger')->pushHandler(new \Monolog\Handler\StreamHandler($this->path('logs') . 'debug.log', \Monolog\Logger::DEBUG));
@@ -183,8 +193,20 @@ class Pure_App {
 
         // Whoops
         if ($this->config('debug') === true) {
-            $this->engine('error_handler', new \Whoops\Run())->pushHandler(new \Whoops\Handler\PrettyPageHandler);
-            $this->engine('error_handler')->register();
+            $run =  new \Whoops\Run();
+            $run->pushHandler(new \Whoops\Handler\PrettyPageHandler());
+            $this->engine('error_handler', $run);
+            
+            set_error_handler(function($errno, $errstr, $errfile, $errline) use ($app) {
+                $e = new \ErrorException($errstr, $errno, 1, $errfile, $errline);
+                $app->engine('error_handler')->handleException($e);
+            }, -1);
+            
+            set_exception_handler(function($e) use ($app) {
+                $app->engine('error_handler')->handleException($e);
+            });
+            
+            //$run->register();
         } else {
             $this->engine('error_handler', false);
         }
@@ -194,16 +216,16 @@ class Pure_App {
      * Application environment name
      * @return string
      */
-    public function env() {
+    public function envName() {
         return $this->config['APP_ENV'];
     }
 
     public function isDevelop() {
-        return $this->env() == 'develop';
+        return $this->envName() == 'develop';
     }
 
     public function isProduction() {
-        return $this->env() == 'production';
+        return $this->envName() == 'production';
     }
 
     public function config($name, $value = null) {

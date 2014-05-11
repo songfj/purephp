@@ -11,7 +11,13 @@ IMPORTANT: I am discontinuing the PHP 5.2 support, but if you are still interest
 
 ## Setup
 
-* Download or clone the source code and navigate to the folder url
+Execute:
+
+```composer create-project mjolnic/purephp your-project-name --prefer-dist --stability=dev```
+
+... or download or clone the source code
+
+Finally navigate to the folder url
 
 ## Features
 
@@ -22,8 +28,8 @@ IMPORTANT: I am discontinuing the PHP 5.2 support, but if you are still interest
 * Flash messaging
 * Basic templating engine (pure php)
 * Helpers based in Laravel 4
-* Support for Laravel Blade templates
-* Integration with Whoops and Monolog
+* Support for Laravel Blade templates and array and string helpers
+* Integration with Whoops, Monolog, RedBean and SwiftMailer
 
 ## Benchmarks
 
