@@ -94,15 +94,12 @@ class Pure_Http_Router extends Pure_Injectable {
      * Binds a HTTP request to a callback
      * @param string $method HTTP verb
      * @param string $path Path expression
-     * @param callable $callback
+     * @param string|callable $callback
      * @param array $options
      * @return \Pure_Http_Route
      * @throws InvalidArgumentException
      */
     public function map($method, $path, $callback, array $options = array()) {
-        if (!is_callable($callback)) {
-            throw new InvalidArgumentException('The argument is not a callable function: ' . print_r($callback, true));
-        }
         $method = $this->formatMethod($method);
         $basepath = explode(':', $path, 2);
         $basepath = empty($basepath[0]) ? '/' : $basepath[0];
