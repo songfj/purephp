@@ -4,7 +4,7 @@
  * 
  * @todo Implement expressjs-like bindParam
  */
-class Pure_Http_Router {
+class Pure_Http_Router extends Pure_Injectable {
 
     /**
      * Route binding stack
@@ -46,13 +46,13 @@ class Pure_Http_Router {
         $method = $this->formatMethod($method);
         $matchedRoutes = array();
         foreach ($this->routes as $i => $route) {
-            if (($route->method == $method) or ($route->method == 'all')) {
+            if (($route->method == $method) or ( $route->method == 'all')) {
                 $num_matches = preg_match_all($route->regexp, $uri, $matches);
                 if ($num_matches > 0) {
                     array_shift($matches);
                     $i = 0;
                     foreach ($route->keys as $k => $param) {
-                        $route->keys[$k]['value'] = (isset($matches[$i][0]) and !empty($matches[$i][0])) ? $matches[$i][0] : false;
+                        $route->keys[$k]['value'] = (isset($matches[$i][0]) and ! empty($matches[$i][0])) ? $matches[$i][0] : false;
                         $i++;
                     }
                     $matchedRoutes[] = $route;
@@ -82,11 +82,11 @@ class Pure_Http_Router {
             }
 
             // Trigger event
-            Pure_Facade::dispatcher()->fire('router.next', array('route' => $this->currentRoute, 'sender'=>$this));
+            $this->app->dispatcher()->fire('router.next', array('route' => $this->currentRoute, 'sender' => $this));
             return $this->currentRoute;
         }
         // Trigger event
-        Pure_Facade::dispatcher()->fire('router.next', array('route' => false, 'sender'=>$this));
+        $this->app->dispatcher()->fire('router.next', array('route' => false, 'sender' => $this));
         return false;
     }
 

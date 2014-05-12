@@ -5,7 +5,7 @@ use Illuminate\View;
 /**
  * Blade templating engine wrapper for PurePHP
  */
-class Pure_View {
+class Pure_View extends Pure_Injectable {
 
     /**
      *
@@ -42,6 +42,8 @@ class Pure_View {
      * @var View\Engines\CompilerEngine
      */
     protected $bladeEngine;
+    protected $viewsPath;
+    protected $cachePath;
 
     /**
      * 
@@ -49,13 +51,20 @@ class Pure_View {
      * @param string $cachePath Views cache path
      */
     public function __construct($viewsPath, $cachePath) {
+        $this->viewsPath = $viewsPath;
+        $this->cachePath = $cachePath;
+    }
+
+    public function setApp(\Pure_App $app) {
+        parent::setApp($app);
+
         $this->engineResolver = new View\Engines\EngineResolver();
-        $this->fileViewFinder = new View\FileViewFinder(Pure_Facade::filesystem(), array(rtrim($viewsPath, '/\\')), array('blade.php', 'php'));
-        $this->environment = new Illuminate\View\Environment($this->engineResolver, $this->fileViewFinder, Pure_Facade::dispatcher());
-        if (!is_dir($cachePath)) {
-            mkdir($cachePath, 0755, true);
+        $this->fileViewFinder = new View\FileViewFinder($this->app->filesystem(), array(rtrim($this->viewsPath, '/\\')), array('blade.php', 'php'));
+        $this->environment = new Illuminate\View\Environment($this->engineResolver, $this->fileViewFinder, $this->app->dispatcher());
+        if (!is_dir($this->cachePath)) {
+            mkdir($this->cachePath, 0755, true);
         }
-        $this->bladeCompiler = new View\Compilers\BladeCompiler(Pure_Facade::filesystem(), rtrim($cachePath, '/\\'));
+        $this->bladeCompiler = new View\Compilers\BladeCompiler($this->app->filesystem(), rtrim($this->cachePath, '/\\'));
         $phpEngine = new View\Engines\PhpEngine($this->bladeCompiler);
         $bladeEngine = new View\Engines\CompilerEngine($this->bladeCompiler);
         $this->engineResolver->register('php', function() use($phpEngine) {

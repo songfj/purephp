@@ -18,7 +18,7 @@
         <style type="text/css" id="relativecss">html,body{position:static} body * {position: relative}</style>
 
         <link href='http://fonts.googleapis.com/css?family=Noto+Sans:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
-        <link href="<?php echo asset('css/app.min.css') ?>" rel="stylesheet">
+        <link href="{{asset('css/app.min.css')}}" rel="stylesheet">
 
         <!-- Cross-browser compatibility scripts: -->
         <script type='text/javascript' src="<?php echo asset('vendor/js/compat.min.js') ?>"></script>
@@ -42,7 +42,6 @@
         <![endif]-->
         
         @include('partials.header')
-        @include('partials.gallery')
         @include('partials.notifications')
         @yield('main')
         @include('partials.footer')

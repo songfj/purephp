@@ -3,7 +3,7 @@
 /**
  * Volt RESTFul HTTP Client
  */
-class Pure_Http_Client {
+class Pure_Http_Client extends Pure_Injectable {
 
     protected $baseUrl;
 

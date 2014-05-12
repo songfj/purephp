@@ -3,7 +3,24 @@
 /**
  * Basic PHP mailing engine
  */
-class Pure_Mail extends Swift_Message {
+class Pure_Mail extends Swift_Message implements Pure_IInjectable {
+
+    /**
+     *
+     * @var Pure_App
+     */
+    protected $app;
+
+    public function setApp(Pure_App $app) {
+        $this->app = $app;
+    }
+
+    /**
+     * @return Pure_App
+     */
+    public function getApp() {
+        return $this->app;
+    }
 
     /**
      * Create a new Message.
@@ -13,7 +30,7 @@ class Pure_Mail extends Swift_Message {
      * @param string $contentType
      * @param string $charset
      *
-     * @return Swift_Message
+     * @return Pure_Mail
      */
     public static function newInstance($subject = null, $body = null, $contentType = null, $charset = null) {
         return new self($subject, $body, $contentType, $charset);
@@ -36,7 +53,7 @@ class Pure_Mail extends Swift_Message {
      * @return int
      */
     public function send(&$failedRecipients = null) {
-        return Pure_Facade::app()->mailer()->send($this, $failedRecipients);
+        return $this->app->mailer()->send($this, $failedRecipients);
     }
 
 }

@@ -1,6 +1,6 @@
 <?php
 
-class Pure_Session implements ArrayAccess {
+class Pure_Session extends Pure_Injectable implements ArrayAccess {
 
     protected $name;
     protected $prefix;
@@ -14,7 +14,7 @@ class Pure_Session implements ArrayAccess {
     }
 
     public function __get($name) {
-        return Pure_Validator::check($_SESSION, $name, false, null);
+        return $this->app->validator()->check($_SESSION, $name, false, null);
     }
 
     public function get($name) {
@@ -22,9 +22,13 @@ class Pure_Session implements ArrayAccess {
     }
 
     public function getOnce($name) {
-        $val = $_SESSION[$name];
-        unset($_SESSION[$name]);
-        return $val;
+        if (isset($_SESSION[$name])) {
+            $val = $_SESSION[$name];
+            unset($_SESSION[$name]);
+            return $val;
+        } else {
+            return false;
+        }
     }
 
     public function __set($name, $value) {

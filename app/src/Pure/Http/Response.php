@@ -13,7 +13,7 @@
  * @todo Implement links()
  * @todo Implement locals
  */
-class Pure_Http_Response {
+class Pure_Http_Response extends Pure_Injectable {
 
     /**
      * Current server protocol
@@ -190,7 +190,7 @@ class Pure_Http_Response {
 
         if (isset($this->cookies[$name])) {
             foreach ($this->cookies[$name] as $i => $o) {
-                if (($o["path"] === $options["path"]) and ($o["domain"] === $options["domain"]) and ($o["secure"] === $options["secure"]) and ($o["httponly"] === $options["httponly"])) {
+                if (($o["path"] === $options["path"]) and ( $o["domain"] === $options["domain"]) and ( $o["secure"] === $options["secure"]) and ( $o["httponly"] === $options["httponly"])) {
                     unset($this->cookies[$name][$i]);
                 }
             }
@@ -226,7 +226,7 @@ class Pure_Http_Response {
         $this->header("Content-Length", strlen($this->body));
 
         // Trigger event
-        Pure_Facade::dispatcher()->fire('response.before_send', array('sender'=>$this));
+        $this->app->dispatcher()->fire('response.before_send', array('sender' => $this));
 
         $this->sendStatusHeader($this->status)
                 ->sendHeaders()
@@ -237,7 +237,7 @@ class Pure_Http_Response {
         }
 
         // Trigger event
-        Pure_Facade::dispatcher()->fire('response.send', array('sender'=>$this));
+        $this->app->dispatcher()->fire('response.send', array('sender' => $this));
 
         return $this;
     }
@@ -247,7 +247,7 @@ class Pure_Http_Response {
             $this->body = $body;
         }
 
-        if (!is_array($this->body) and !is_object($this->body)) {
+        if (!is_array($this->body) and ! is_object($this->body)) {
             $this->body = array('content' => $this->body);
         }
 

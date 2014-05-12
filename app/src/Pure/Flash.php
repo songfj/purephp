@@ -3,7 +3,7 @@
 /**
  * Simple session flash message logging
  */
-class Pure_Flash {
+class Pure_Flash extends Pure_Injectable {
 
     /**
      *

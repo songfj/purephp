@@ -7,22 +7,49 @@
 class Pure_App {
 
     /**
-     * App registry
+     * Defined paths
      * @var array
      */
-    protected $registry = array(
-        'paths' => array(),
-        'urls' => array(),
-        'engines' => array(),
-        'middleware' => array(),
-        'data' => array(
-            'messages' => array()
-        ),
-        'flags' => array()
-    );
+    protected $paths = array();
 
     /**
-     * Array containing config. for: paths, urls, engines and more
+     * Defined urls
+     * @var array
+     */
+    protected $urls = array();
+
+    /**
+     * Middleware stack called before all routes
+     * @var array
+     */
+    protected $middleware = array();
+
+    /**
+     * Shared data
+     * @var array
+     */
+    protected $data = array();
+
+    /**
+     * System messages
+     * @var array
+     */
+    protected $messages = array();
+
+    /**
+     * Application boolean flags
+     * @var array
+     */
+    protected $flags = array();
+
+    /**
+     * Shared instances container
+     * @var array
+     */
+    protected $container = array();
+
+    /**
+     * Array containing config. for: paths, urls, libraries and more
      * @var array
      */
     protected $config = false;
@@ -37,20 +64,22 @@ class Pure_App {
      *
      * @var string
      */
-    protected static $currentInstance = false;
+    protected static $defaultInstance = false;
 
-    public function __construct(\Composer\Autoload\ClassLoader $loader, array $paths, $name = 'default', array $config = array()) {
-        if (isset(self::$instances[$name])) {
+    public function __construct(\Composer\Autoload\ClassLoader $loader, array $config = array('name' => 'default', 'paths' => array())) {
+        $config = array_merge(array('name' => 'default', 'paths' => array()), $config);
+
+        if (isset(self::$instances[$config['name']])) {
             throw new Exception('Pure_App: There is another Pure_App instance with the same name.');
         } else {
-            self::$instances[$name] = $this;
+            self::$instances[$config['name']] = $this;
         }
 
-        if (self::$currentInstance === false) {
-            self::$currentInstance = $name;
+        if (self::$defaultInstance === false) {
+            self::$defaultInstance = $config['name'];
         }
 
-        $this->registry['engines']['loader'] = $loader;
+        $this->container['loader'] = $loader;
 
         $this->config = $config;
 
@@ -65,14 +94,14 @@ class Pure_App {
 
         $this->config['APP_ENV'] = strtolower($this->config['APP_ENV']);
 
-        $this->_initPaths($paths);
+        $this->_initPaths($config['paths']);
         $this->_initRouting();
         $this->_initConfig();
         $this->_initEngines();
 
         // (Optional) Init file
-        if (is_readable($this->registry['paths']['app'] . 'init.php')) {
-            include $this->registry['paths']['app'] . 'init.php';
+        if (is_readable($this->paths['app'] . 'init.php') and (!$this->isTest())) {
+            include $this->paths['app'] . 'init.php';
         }
     }
 
@@ -105,7 +134,7 @@ class Pure_App {
             }
             file_put_contents($paths['data'] . '.setup', time());
         }
-        $this->registry['paths'] = $paths;
+        $this->paths = $paths;
     }
 
     private function _initRouting() {
@@ -119,27 +148,28 @@ class Pure_App {
         }
 
         // Dispatcher
-        $this->engine('dispatcher', new \Illuminate\Events\Dispatcher());
+        $this->container('dispatcher', new \Illuminate\Events\Dispatcher());
 
-        $this->registry['engines']['request'] = new Pure_Http_Request();
-        $this->registry['engines']['response'] = new Pure_Http_Response();
-        $this->registry['engines']['router'] = new Pure_Http_Router();
+        $this->container['request'] = $this->make('Pure_Http_Request', array(false));
+        $this->container['request']->populate();
+        $this->container['response'] = $this->make('Pure_Http_Response');
+        $this->container['router'] = $this->make('Pure_Http_Router');
 
         // URLs
-        $this->registry['urls']['domain'] = $this->request()->protocol . '://' . $this->request()->host . '/';
-        $this->registry['urls']['base'] = $this->registry['urls']['root'] = trim($this->registry['urls']['domain'] . ltrim($this->request()->basePath, '/'), '/') . '/';
+        $this->urls['domain'] = $this->request()->protocol . '://' . $this->request()->host . '/';
+        $this->urls['base'] = $this->urls['root'] = trim($this->urls['domain'] . ltrim($this->request()->basePath, '/'), '/') . '/';
 
         // Rewrite engine base URL
         if ($this->config('useIndexFile') === true) {
-            $this->registry['urls']['rewrite_base'] = $this->registry['urls']['base'] . 'index.php/';
+            $this->urls['rewrite_base'] = $this->urls['base'] . 'index.php/';
         } else {
-            $this->registry['urls']['rewrite_base'] = $this->registry['urls']['base'];
+            $this->urls['rewrite_base'] = $this->urls['base'];
         }
-        $this->registry['urls']['content'] = $this->registry['urls']['base'] . 'content/';
-        $this->registry['urls']['current'] = trim($this->registry['urls']['base'] . $this->request()->path, '/') . '/';
-        $this->registry['urls']['current_query'] = $this->registry['urls']['current'] .
+        $this->urls['content'] = $this->urls['base'] . 'content/';
+        $this->urls['current'] = trim($this->urls['base'] . $this->request()->path, '/') . '/';
+        $this->urls['current_query'] = $this->urls['current'] .
                 (!empty($this->request()->query) ? '?' . http_build_query($this->request()->query) : '');
-        $this->registry['urls']['previous'] = $this->request()->previousUrl();
+        $this->urls['previous'] = $this->request()->previousUrl();
     }
 
     private function _initConfig() {
@@ -147,10 +177,10 @@ class Pure_App {
         // (Optional) Config file based on environment
         $user_config = array();
 
-        if (is_readable($this->registry['paths']['config'] . $this->config['APP_ENV'] . '.php')) {
-            $user_config = include $this->registry['paths']['config'] . $this->config['APP_ENV'] . '.php';
-        } elseif (is_readable($this->registry['paths']['config'] . 'default.php')) {
-            $user_config = include $this->registry['paths']['config'] . 'default.php';
+        if (is_readable($this->paths['config'] . $this->config['APP_ENV'] . '.php')) {
+            $user_config = include $this->paths['config'] . $this->config['APP_ENV'] . '.php';
+        } elseif (is_readable($this->paths['config'] . 'default.php')) {
+            $user_config = include $this->paths['config'] . 'default.php';
         }
         if (!is_array($user_config)) {
             $user_config = array();
@@ -159,19 +189,31 @@ class Pure_App {
         $this->config = array_merge_recursive_replace($this->config, $user_config);
     }
 
+    /**
+     * @todo Implement Monolog channel for user flash messages
+     */
     private function _initEngines() {
         $app = $this;
 
+        // Session
+        $this->container('session', $this->make('Pure_Session', array($this->path('root'))));
+
+        // Flash
+        $this->container('flash', $this->make('Pure_Flash', array($this->container('session'))));
+
+
         // Filesystem
-        $this->engine('filesystem', new \Illuminate\Filesystem\Filesystem());
+        $this->container('filesystem', new \Illuminate\Filesystem\Filesystem());
 
         // Views
-        $this->engine('view', new Pure_View($this->path('views'), $this->path('cache') . 'views/'));
+        $this->container('view', $this->make('Pure_View', array($this->path('views'), $this->path('cache') . 'views/')));
 
         // Monolog
-        $this->engine('logger', new \Monolog\Logger('purephp'));
-        $this->engine('logger')->pushHandler(new \Monolog\Handler\StreamHandler($this->path('logs') . 'debug.log', \Monolog\Logger::DEBUG));
+        $this->container('logger', new \Monolog\Logger('purephp'));
+        $this->container('logger')->pushHandler(new \Monolog\Handler\StreamHandler($this->path('logs') . 'debug.log', \Monolog\Logger::DEBUG));
 
+        // Monolog for user flash messages
+        // TODO: implement
         // SwiftMailer
         if (strtolower($this->config('smtp_enabled')) == true) {
             $transport = Swift_SmtpTransport::newInstance($this->config('smtp_host'), $this->config('smtp_port'))
@@ -180,42 +222,42 @@ class Pure_App {
         } else {
             $transport = Swift_MailTransport::newInstance();
         }
-        $this->engine('mailer', Swift_Mailer::newInstance($transport));
+        $this->container('mailer', Swift_Mailer::newInstance($transport));
 
 
         // RedBean
         if ($this->config('db.enabled')) {
             RedBean_Facade::setup($this->config('db.dsn'), $this->config('db.username'), $this->config('db.password'));
-            $this->engine('database', RedBean_Facade::getToolBox()->getDatabaseAdapter()->getDatabase());
+            $this->container('database', RedBean_Facade::getToolBox()->getDatabaseAdapter()->getDatabase());
         } else {
-            $this->engine('database', false);
+            $this->container('database', false);
         }
 
         // Whoops
         if ($this->config('debug') === true) {
             $run = new \Whoops\Run();
             $run->pushHandler(new \Whoops\Handler\PrettyPageHandler());
-            $this->engine('error_handler', $run);
+            $this->container('error_handler', $run);
 
             set_error_handler(function($errno, $errstr, $errfile, $errline) use ($app) {
                 $e = new \ErrorException($errstr, $errno, 1, $errfile, $errline);
-                $app->engine('error_handler')->handleException($e);
+                $app->container('error_handler')->handleException($e);
             }, -1);
 
             set_exception_handler(function($e) use ($app) {
-                $app->engine('error_handler')->handleException($e);
+                $app->container('error_handler')->handleException($e);
             });
 
             //$run->register();
         } else {
-            $this->engine('error_handler', false);
+            $this->container('error_handler', false);
         }
 
         // Validator
-        $this->engine('validator', new Pure_Validator());
+        $this->container('validator', new Pure_Validator());
 
         // HTML generator
-        $this->engine('html', new Pure_Html());
+        $this->container('html', new Pure_Html());
     }
 
     /**
@@ -224,6 +266,10 @@ class Pure_App {
      */
     public function envName() {
         return $this->config['APP_ENV'];
+    }
+
+    public function isTest() {
+        return $this->envName() == 'test';
     }
 
     public function isDevelop() {
@@ -241,30 +287,42 @@ class Pure_App {
         return isset($this->config[$name]) ? $this->config[$name] : false;
     }
 
-    public function engine($name, $value = null) {
+    /**
+     * Adds a existing object instance into the container array
+     * @param string $name
+     * @param mixed $value
+     * @return mixed The container instance
+     */
+    public function container($name, $value = null) {
         if (func_num_args() > 1) {
-            $this->registry['engines'][$name] = $value;
+            $this->container[$name] = $value;
         }
-        return isset($this->registry['engines'][$name]) ? $this->registry['engines'][$name] : false;
+        return isset($this->container[$name]) ? $this->container[$name] : false;
     }
 
+    /**
+     * Gets or sets an application flag (status booleans)
+     * @param string $name
+     * @param boolean|null $enable
+     * @return boolean
+     */
     public function flag($name, $enable = null) {
         if (is_bool($enable)) {
             if (($enable === false) and $this->hasFlag($name)) {
-                unset($this->registry['flags'][$name]);
+                unset($this->flags[$name]);
             } elseif ($enable === true) {
-                $this->registry['flags'][$name] = true;
+                $this->flags[$name] = true;
             }
         }
-        return $this->hasFlag($name) ? $this->registry['flags'][$name] : false;
+        return $this->hasFlag($name) ? $this->flags[$name] : false;
     }
 
     public function hasFlag($name) {
-        return isset($this->registry['flags'][$name]);
+        return isset($this->flags[$name]);
     }
 
     public function getFlags() {
-        return $this->registry['flags'];
+        return $this->flags;
     }
 
     /**
@@ -272,7 +330,61 @@ class Pure_App {
      * @return Swift_Mailer
      */
     public function mailer() {
-        return $this->engine('mailer');
+        return $this->container('mailer');
+    }
+
+    /**
+     * 
+     * @return \Illuminate\Events\Dispatcher
+     */
+    public function dispatcher() {
+        return $this->container('dispatcher');
+    }
+
+    /**
+     * 
+     * @return \Whoops\Run
+     */
+    public function eventHandler() {
+        return $this->container('event_handler');
+    }
+
+    /**
+     * 
+     * @return \Monolog\Logger
+     */
+    public function logger() {
+        return $this->container('logger');
+    }
+
+    /**
+     * 
+     * @return \Illuminate\Filesystem\Filesystem
+     */
+    public function filesystem() {
+        return $this->container('filesystem');
+    }
+
+    /**
+     * 
+     * @return Pure_Validator
+     */
+    public function validator() {
+        return $this->container('validator');
+    }
+
+    /**
+     * @return Pure_Session
+     */
+    public function session() {
+        return $this->container('session');
+    }
+
+    /**
+     * @return Pure_Flash
+     */
+    public function flash() {
+        return $this->container('flash');
     }
 
     /**
@@ -286,14 +398,16 @@ class Pure_App {
      */
     public function mail($to, $subject, $body, $from = null, $bcc = null) {
         // Create a message
-        $message = Pure_Mail::newInstance($subject)
-                ->setFrom($from ? $from : $this->config('smtp_from'))
+        $message = Pure_Mail::newInstance($subject);
+        $message->setFrom($from ? $from : $this->config('smtp_from'))
                 ->setTo($to)
                 ->setBody($body, 'text/html', 'utf-8');
 
         if (!empty($bcc)) {
             $message->setBcc($bcc);
         }
+
+        $message->setApp($this);
 
         // Send the message
         return $message;
@@ -304,7 +418,7 @@ class Pure_App {
      * @return \Composer\Autoload\ClassLoader
      */
     public function loader() {
-        return $this->engine('loader');
+        return $this->container('loader');
     }
 
     /**
@@ -313,7 +427,7 @@ class Pure_App {
      * @return Pure_Http_Request
      */
     public function request() {
-        return $this->engine('request');
+        return $this->container('request');
     }
 
     /**
@@ -321,7 +435,7 @@ class Pure_App {
      * @return Pure_Http_Response
      */
     public function response() {
-        return $this->engine('response');
+        return $this->container('response');
     }
 
     /**
@@ -329,7 +443,7 @@ class Pure_App {
      * @return Pure_View
      */
     public function view() {
-        return $this->engine('view');
+        return $this->container('view');
     }
 
     /**
@@ -337,7 +451,7 @@ class Pure_App {
      * @return Pure_Http_Router
      */
     public function router() {
-        return $this->engine('router');
+        return $this->container('router');
     }
 
     /**
@@ -345,42 +459,57 @@ class Pure_App {
      * @return Redbean_Driver
      */
     public function db() {
-        return $this->engine('database');
+        return $this->container('database');
     }
 
     /**
-     * Adds new middleware to the stack
+     * Creates a new object, setting the app instance if the class implements Pure_IInjectable
+     * @param string $className The class name
+     * @param array $args Constructor arguments
+     * @return mixed The new instance
+     */
+    public function make($className, array $args = array()) {
+        $rclass = new ReflectionClass($className);
+        $obj = $rclass->newInstanceArgs($args);
+        if (in_array('Pure_IInjectable', class_implements($className))) {
+            $obj->setApp($this);
+        }
+        return $obj;
+    }
+
+    /**
+     * Adds new middleware to the stack, that is called before the defined routes
      * @param callable $callback Callable middleware
      */
-    public function bind($callback) {
-        $this->registry['middleware'][] = $callback;
+    public function before($callback) {
+        $this->middleware[] = $callback;
     }
 
     /**
-     * General application data (registry of variables not considered engines nor global config)
+     * General application data (registry of variables not considered shared instances nor global config)
      * @param string $name
      * @param mixed $value
      * @return mixed
      */
     public function data($name, $value = null) {
         if (func_num_args() > 1) {
-            $this->registry['data'][$name] = $value;
+            $this->data[$name] = $value;
         }
-        return isset($this->registry['data'][$name]) ? $this->registry['data'][$name] : false;
+        return isset($this->data[$name]) ? $this->data[$name] : false;
     }
 
     public function url($name = 'rewrite_base', $value = null) {
         if (func_num_args() > 1) {
-            $this->registry['urls'][$name] = $value;
+            $this->urls[$name] = $value;
         }
-        return isset($this->registry['urls'][$name]) ? $this->registry['urls'][$name] : false;
+        return isset($this->urls[$name]) ? $this->urls[$name] : false;
     }
 
     public function path($name = 'root', $value = null) {
         if (func_num_args() > 1) {
-            $this->registry['paths'][$name] = $value;
+            $this->paths[$name] = $value;
         }
-        return isset($this->registry['paths'][$name]) ? $this->registry['paths'][$name] : false;
+        return isset($this->paths[$name]) ? $this->paths[$name] : false;
     }
 
     /**
@@ -388,16 +517,16 @@ class Pure_App {
      * @param type $instanceName
      * @return string
      */
-    public static function getInstance($instanceName = 'default') {
-        return self::$instances[$instanceName];
+    public static function getInstance($instanceName = null) {
+        return self::$instances[$instanceName ? $instanceName : self::$defaultInstance];
     }
 
     /**
      * Sets the current instance (must be created before)
      * @param string $name
      */
-    public static function setInstance($instanceName) {
-        self::$currentInstance = $instanceName;
+    public static function setDefaultInstance($instanceName) {
+        self::$defaultInstance = $instanceName;
     }
 
     public function halt($message = '500 Internal Server Error', $status = '500 Internal Server Error') {
@@ -416,8 +545,8 @@ class Pure_App {
      */
     public function next() {
         $result = false;
-        if (count($this->registry['middleware']) > 0) { // First execute all middleware
-            $middleware = array_shift($this->registry['middleware']);
+        if (count($this->middleware) > 0) { // First execute all middleware
+            $middleware = array_shift($this->middleware);
             $result = call_user_func_array($middleware, array($this->request(), $this->response(), new Pure_Http_Route(), $this));
         } else { // Then execute all router bindings
             $route = $this->prepareRoute();
@@ -461,13 +590,13 @@ class Pure_App {
      * executes the route lop
      */
     public function start() {
-        Pure_Facade::dispatcher()->fire('app.before_start', array('sender' => $this));
-        Pure_Facade::dispatcher()->fire('app.before_dispatch', array('sender' => $this));
+        $this->container('dispatcher')->fire('app.before_start', array('sender' => $this));
+        $this->container('dispatcher')->fire('app.before_dispatch', array('sender' => $this));
         $this->router()->dispatch($this->request());
-        Pure_Facade::dispatcher()->fire('app.dispatch', array('sender' => $this));
+        $this->container('dispatcher')->fire('app.dispatch', array('sender' => $this));
         // start loop
         $this->next();
-        Pure_Facade::dispatcher()->fire('app.start', array('sender' => $this));
+        $this->container('dispatcher')->fire('app.start', array('sender' => $this));
     }
 
 }

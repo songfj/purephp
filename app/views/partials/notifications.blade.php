@@ -1,7 +1,7 @@
 <?php
 
 $notifications = App::flash()->getMessages(true);
-if(count($notifications) > 0):
+if(is_array($notifications) and (count($notifications) > 0)):
     ?>
 <div class="container">
     <ul class="notifications-panel">

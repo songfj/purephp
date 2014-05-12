@@ -3,7 +3,7 @@
 /**
  * Wrapper object for arrays.
  */
-class Pure_Obj implements ArrayAccess {
+class Pure_Obj extends Pure_Injectable implements ArrayAccess {
 
     /**
      * Object properties

@@ -3,6 +3,6 @@
 /**
  * Base controller
  */
-class Pure_Controller {
+class Pure_Controller extends Pure_Injectable {
     
 }

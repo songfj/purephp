@@ -8,10 +8,10 @@ class Pure_Facade {
 
     /**
      *
-     * @param string $instanceName
+     * @param string $instanceName (null for default instance)
      * @return Pure_App
      */
-    public static function app($instanceName = 'default') {
+    public static function app($instanceName = null) {
         return Pure_App::getInstance($instanceName);
     }
 
@@ -65,7 +65,7 @@ class Pure_Facade {
      * @return \Illuminate\Filesystem\Filesystem
      */
     public static function filesystem() {
-        return static::app()->engine('filesystem');
+        return static::app()->filesystem();
     }
 
     /**
@@ -73,7 +73,15 @@ class Pure_Facade {
      * @return \Illuminate\Events\Dispatcher
      */
     public static function dispatcher() {
-        return static::app()->engine('dispatcher');
+        return static::app()->dispatcher();
+    }
+
+    /**
+     * 
+     * @return Pure_Validator
+     */
+    public static function validator() {
+        return static::app()->validator();
     }
 
     /**
@@ -187,14 +195,36 @@ class Pure_Facade {
         }
     }
 
-    public static function engine($name, $value = null) {
+    /**
+     * Creates a new object, setting the app instance if the class implements Pure_IHaveApp
+     * @param string $className The class name
+     * @param array $args Constructor arguments
+     * @return mixed The new instance
+     */
+    public static function make($className, array $args = array()) {
+        return static::app()->make($className, $args);
+    }
+
+    /**
+     * Adds a existing object instance into the container array
+     * @param string $name
+     * @param mixed $value
+     * @return mixed The container instance
+     */
+    public static function container($name, $value = null) {
         if (func_num_args() > 1) {
-            return static::app()->engine($name, $value);
+            return static::app()->container($name, $value);
         } else {
-            return static::app()->engine($name);
+            return static::app()->container($name);
         }
     }
 
+    /**
+     * Gets or sets an application flag (status booleans)
+     * @param string $name
+     * @param boolean|null $enable
+     * @return boolean
+     */
     public static function flag($name, $enable = null) {
         return static::app()->flag($name, $enable);
     }
@@ -253,11 +283,11 @@ class Pure_Facade {
     }
 
     /**
-     * Adds new middleware to the stack
+     * Adds new middleware to the stack, that is called before the defined routes
      * @param callable $callback
      */
-    public static function bind($callback) {
-        static::app()->bind($callback);
+    public static function before($callback) {
+        static::app()->before($callback);
     }
 
     /**
@@ -381,9 +411,9 @@ class Pure_Facade {
      */
     public static function log($level = null, $message = null, array $context = array()) {
         if (empty($level)) {
-            return static::app()->engine('logger');
+            return static::app()->logger();
         }
-        return static::app()->engine('logger')->log($level, $message, $context);
+        return static::app()->logger()->log($level, $message, $context);
     }
 
     public static function cache($key, $expire_time = 3600, $generator_fn = null, $generator_args = array()) {
@@ -406,20 +436,14 @@ class Pure_Facade {
      * @return Pure_Session
      */
     public static function session() {
-        if (static::engine('session') == false) {
-            static::engine('session', new Pure_Session(static::path('root')));
-        }
-        return static::engine('session');
+        return static::app()->session();
     }
 
     /**
      * @return Pure_Flash
      */
     public static function flash() {
-        if (static::engine('flash') == false) {
-            static::engine('flash', new Pure_Flash(static::session()));
-        }
-        return static::engine('flash');
+        return static::app()->flash();
     }
 
     /**
@@ -442,19 +466,6 @@ class Pure_Facade {
     public static function flashRedirect($url, $level, $message, array $context = array(), $status = 302) {
         static::flash()->write($level, $message, $context);
         static::redirect($url, $status);
-    }
-
-    public static function messages($name = null, $value = null) {
-        $messages = static::app()->data('messages');
-        $numargs = func_num_args();
-        if ($numargs == 1) {
-            $name = mb_strtoupper($name);
-            return isset($messages[$name]) ? $messages[$name] : '{' . $name . '}';
-        } else {
-            $name = mb_strtoupper($name);
-            $messages[$name] = $value;
-        }
-        return $messages;
     }
 
 }

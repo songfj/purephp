@@ -1,6 +1,6 @@
 <?php
 
-class Pure_Http_Request {
+class Pure_Http_Request extends Pure_Injectable {
     /*
      * The HTTP Request Method (verb)
      * @var string
@@ -122,15 +122,15 @@ class Pure_Http_Request {
 
     public function populate() {
         // Trigger event
-        Pure_Facade::dispatcher()->fire('request.before_populate', array('sender'=>$this));
+        $this->app->dispatcher()->fire('request.before_populate', array('sender' => $this));
 
         $script_name = (isset($_SERVER["SCRIPT_NAME"]) ? $_SERVER["SCRIPT_NAME"] : '');
 
         $this->method = isset($_SERVER['HTTP_X_METHOD']) ? strtoupper($_SERVER['HTTP_X_METHOD']) : (
                 isset($_SERVER['REQUEST_METHOD']) ? strtoupper($_SERVER['REQUEST_METHOD']) : '');
 
-        $this->protocol = (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) and ($_SERVER['HTTP_X_FORWARDED_PROTO'] == 'https')) ?
-                'https' : ((isset($_SERVER['HTTPS']) and ($_SERVER['HTTPS'] != 'off')) ? 'https' : 'http');
+        $this->protocol = (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) and ( $_SERVER['HTTP_X_FORWARDED_PROTO'] == 'https')) ?
+                'https' : ((isset($_SERVER['HTTPS']) and ( $_SERVER['HTTPS'] != 'off')) ? 'https' : 'http');
 
         $this->host = isset($_SERVER["HTTP_HOST"]) ? $_SERVER["HTTP_HOST"] : "";
         $this->port = isset($_SERVER["SERVER_PORT"]) ? $_SERVER["SERVER_PORT"] : 80;
@@ -188,7 +188,7 @@ class Pure_Http_Request {
         $this->segments = explode('/', $this->path);
 
         // Trigger event
-        Pure_Facade::dispatcher()->fire('request.populate', array('sender'=>$this));
+        $this->app->dispatcher()->fire('request.populate', array('sender' => $this));
 
         return $this;
     }
@@ -346,8 +346,8 @@ class Pure_Http_Request {
     public function isWebFile($exts = 'css|js|jpg|png|gif|swf|svg|otf|eot|woff|ttf|avi|mp3|mp4|mpg|mov|mpeg|mkv|ogg|ogv|oga|aac|wmv|wma|rm|webm|webp|pdf|zip|gz|tar|rar|7z') {
         return (preg_match("/\.({$exts})$/", $this->extension) != false);
     }
-    
-    public function isCli(){
+
+    public function isCli() {
         return (php_sapi_name() == "cli");
     }
 
@@ -365,7 +365,7 @@ class Pure_Http_Request {
      * @return mixed The variable value
      */
     public function get($key, $default = NULL, $validation = NULL) {
-        return Pure_Validator::check($this->query, $key, $default, $validation);
+        return $this->app->validator()->check($this->query, $key, $default, $validation);
     }
 
     /**
@@ -378,7 +378,7 @@ class Pure_Http_Request {
      * @return mixed The variable value
      */
     public function post($key, $default = NULL, $validation = NULL) {
-        return Pure_Validator::check($this->body, $key, $default, $validation);
+        return $this->app->validator()->check($this->body, $key, $default, $validation);
     }
 
     /**
@@ -414,7 +414,7 @@ class Pure_Http_Request {
      * @return mixed The variable value
      */
     public function cookie($key, $default = NULL, $validation = NULL) {
-        return Pure_Validator::check($this->cookies, $key, $default, $validation);
+        return $this->app->validator()->check($this->cookies, $key, $default, $validation);
     }
 
     /**
@@ -427,7 +427,7 @@ class Pure_Http_Request {
      * @return mixed The variable value
      */
     public function segment($key, $default = NULL, $validation = NULL) {
-        return Pure_Validator::check($this->segments, $key, $default, $validation);
+        return $this->app->validator()->check($this->segments, $key, $default, $validation);
     }
 
     public function userAgent() {
@@ -454,7 +454,7 @@ class Pure_Http_Request {
      */
     public function uaIsIe() {
         $v = $this->uaIeVersion();
-        return ($v !== false) and ($v > 0);
+        return ($v !== false) and ( $v > 0);
     }
 
     /**
