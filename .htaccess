@@ -1,7 +1,7 @@
 allow from all
 
 # Set default Application Environment name
-SetEnv APPLICATION_ENV develop
+SetEnv APP_ENV develop
 
 AddDefaultCharset utf-8
 
@@ -29,7 +29,7 @@ DirectoryIndex index.php index.html
     Options +FollowSymlinks
   # Options +SymLinksIfOwnerMatch
   # Tell PHP that mod rewrite is enabled
-    SetEnv APPLICATION_REWRITE_ENGINE on
+    SetEnv APP_REWRITE_ENGINE on
     RewriteEngine On
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteCond %{REQUEST_FILENAME} !-d

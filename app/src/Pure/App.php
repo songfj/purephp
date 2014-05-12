@@ -94,20 +94,23 @@ class Pure_App {
 
         $this->config['APP_ENV'] = strtolower($this->config['APP_ENV']);
 
+        // Validator
+        $this->container('validator', new Pure_Validator());
+
         $this->_initPaths($config['paths']);
         $this->_initRouting();
         $this->_initConfig();
         $this->_initEngines();
 
         // (Optional) Init file
-        if (is_readable($this->paths['app'] . 'init.php') and (!$this->isTest())) {
+        if (is_readable($this->paths['app'] . 'init.php') and ( !$this->isTest())) {
             include $this->paths['app'] . 'init.php';
         }
     }
 
     private function _initPaths(array $paths) {
         $ds = DIRECTORY_SEPARATOR;
-        $rootpath = realpath(dirname($_SERVER['SCRIPT_FILENAME'])) . $ds;
+        $rootpath = realpath(dirname($this->server('SCRIPT_FILENAME'))) . $ds;
         $libpath = realpath(dirname(__FILE__) . '/../') . $ds;
 
         // Merge default paths with project ones
@@ -140,7 +143,7 @@ class Pure_App {
     private function _initRouting() {
 
         if (!isset($this->config['hasModRewrite'])) {
-            $this->config['hasModRewrite'] = (isset($_SERVER['APPLICATION_REWRITE_ENGINE']) && ($_SERVER['APPLICATION_REWRITE_ENGINE'] == 'on'));
+            $this->config['hasModRewrite'] = ($this->server('APP_REWRITE_ENGINE') == 'on');
         }
 
         if (!isset($this->config['useIndexFile'])) {
@@ -252,9 +255,6 @@ class Pure_App {
         } else {
             $this->container('error_handler', false);
         }
-
-        // Validator
-        $this->container('validator', new Pure_Validator());
 
         // HTML generator
         $this->container('html', new Pure_Html());
@@ -422,6 +422,18 @@ class Pure_App {
     }
 
     /**
+     * Returns a $_SERVER variable
+     * 
+     * @param string $key $_SERVER key name
+     * @param mixed $default Default value if the variable is not set or regexp is false
+     * @param mixed $validation FILTER_* constant value, regular expression or callable method/function (that returns a boolean i.e. is_string)
+     * @return mixed The variable value
+     */
+    public function server($key, $default = null, $validation = null) {
+        return $this->validator()->check($_SERVER, $key, $default, $validation);
+    }
+
+    /**
      * Request is an object these properties: method, protocol, host, domain,
      * subdomains, basePath, path, extension, query, body, files, cookies, headers and ip
      * @return Pure_Http_Request
@@ -533,7 +545,7 @@ class Pure_App {
         if (strpos(strtolower(PHP_SAPI), 'cgi') !== false) {
             header("Status: " . $status);
         } else {
-            header($_SERVER['SERVER_PROTOCOL'] . " " . $status);
+            header($this->server('SERVER_PROTOCOL') . " " . $status);
         }
         die('<html><head></head><body><h1>' . $message . '</h1></body></html>');
     }

@@ -3,6 +3,7 @@
 // Application config
 
 $config = array(
+    'default_host' => 'localhost', // default host if no one is defined e.g. in cli environments
     //Whoops
     'debug' => false,
     // DB

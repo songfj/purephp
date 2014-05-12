@@ -109,7 +109,14 @@ class Pure_Http_Response extends Pure_Injectable {
     );
 
     public function __construct($serverProtocol = null) {
-        $this->serverProtocol = !empty($serverProtocol) ? $serverProtocol : (isset($_SERVER["SERVER_PROTOCOL"]) ? $_SERVER["SERVER_PROTOCOL"] : 'HTTP/1.1');
+        $this->serverProtocol = $serverProtocol;
+    }
+
+    public function setApp(\Pure_App $app) {
+        parent::setApp($app);
+        if (empty($this->serverProtocol)) {
+            $this->serverProtocol = $this->app->server('SERVER_PROTOCOL', 'HTTP/1.1');
+        }
     }
 
     /**

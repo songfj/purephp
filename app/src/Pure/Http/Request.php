@@ -124,17 +124,17 @@ class Pure_Http_Request extends Pure_Injectable {
         // Trigger event
         $this->app->dispatcher()->fire('request.before_populate', array('sender' => $this));
 
-        $script_name = (isset($_SERVER["SCRIPT_NAME"]) ? $_SERVER["SCRIPT_NAME"] : '');
+        $script_name = $this->app->server('SCRIPT_NAME', '');
 
-        $this->method = isset($_SERVER['HTTP_X_METHOD']) ? strtoupper($_SERVER['HTTP_X_METHOD']) : (
-                isset($_SERVER['REQUEST_METHOD']) ? strtoupper($_SERVER['REQUEST_METHOD']) : '');
+        $this->method = strtoupper($this->app->server('HTTP_X_METHOD', $this->app->server('REQUEST_METHOD', '')));
 
-        $this->protocol = (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) and ( $_SERVER['HTTP_X_FORWARDED_PROTO'] == 'https')) ?
-                'https' : ((isset($_SERVER['HTTPS']) and ( $_SERVER['HTTPS'] != 'off')) ? 'https' : 'http');
+        $this->protocol = ($this->app->server('HTTP_X_FORWARDED_PROTO') == 'https') ?
+                'https' : (($this->app->server('HTTPS') == 'on') ? 'https' : 'http');
 
-        $this->host = isset($_SERVER["HTTP_HOST"]) ? $_SERVER["HTTP_HOST"] : "";
-        $this->port = isset($_SERVER["SERVER_PORT"]) ? $_SERVER["SERVER_PORT"] : 80;
-        $this->serverName = isset($_SERVER["SERVER_NAME"]) ? $_SERVER["SERVER_NAME"] : "";
+        $defaultHost = $this->app->config('default_host') ? $this->app->config('default_host') : 'localhost';
+        $this->host = $this->app->server('HTTP_HOST', $defaultHost);
+        $this->port = $this->app->server('SERVER_PORT', 80);
+        $this->serverName = $this->app->server('SERVER_NAME', $defaultHost);
 
         // Domain and subdomains
         $this->domain = preg_replace('/\:.+/', '', $this->host);
@@ -152,7 +152,7 @@ class Pure_Http_Request extends Pure_Injectable {
         }
 
         // Path
-        $this->path = explode("?", trim(isset($_SERVER["REQUEST_URI"]) ? $_SERVER["REQUEST_URI"] : '', " /"), 2);
+        $this->path = explode("?", trim($this->app->server('REQUEST_URI', ''), " /"), 2);
         $this->path = $this->path[0];
         if (!empty($this->basePath)) {
             $this->path = preg_replace("/^" . str_replace('/', '\/', $this->basePath) . "/", "", $this->path);
@@ -184,7 +184,7 @@ class Pure_Http_Request extends Pure_Injectable {
             }
         }
 
-        $this->ip = (isset($_SERVER["REMOTE_ADDR"]) ? $_SERVER["REMOTE_ADDR"] : false);
+        $this->ip = $this->app->server('REMOTE_ADDR', false);
         $this->segments = explode('/', $this->path);
 
         // Trigger event

@@ -1,5 +1,7 @@
 <?php
 
+define('PUREPHP_VERSION', '2.0.0-dev');
+
 $startTime = microtime(true);
 
 // Specify your custom app class or leave it as Pure_App
