@@ -4,7 +4,7 @@
  * 
  * @todo Implement expressjs-like bindParam
  */
-class Pure_Http_Router {
+class Pure_Http_Router extends Pure_Injectable {
 
     /**
      * Route binding stack
@@ -36,7 +36,7 @@ class Pure_Http_Router {
      *
      * @var type 
      */
-    protected static $tmpRegexpData = array();
+    protected $tmpRegexpData = array();
 
     public function __construct() {
         //leave this for reflection instantiation
@@ -46,13 +46,13 @@ class Pure_Http_Router {
         $method = $this->formatMethod($method);
         $matchedRoutes = array();
         foreach ($this->routes as $i => $route) {
-            if (($route->method == $method) or ($route->method == 'all')) {
+            if (($route->method == $method) or ( $route->method == 'all')) {
                 $num_matches = preg_match_all($route->regexp, $uri, $matches);
                 if ($num_matches > 0) {
                     array_shift($matches);
                     $i = 0;
                     foreach ($route->keys as $k => $param) {
-                        $route->keys[$k]['value'] = (isset($matches[$i][0]) and !empty($matches[$i][0])) ? $matches[$i][0] : false;
+                        $route->keys[$k]['value'] = (isset($matches[$i][0]) and ! empty($matches[$i][0])) ? $matches[$i][0] : false;
                         $i++;
                     }
                     $matchedRoutes[] = $route;
@@ -82,11 +82,11 @@ class Pure_Http_Router {
             }
 
             // Trigger event
-            Pure_Dispatcher::getInstance()->trigger('router.next', array('route' => $this->currentRoute), $this);
+            $this->app->dispatcher()->fire('router.next', array('route' => $this->currentRoute, 'sender' => $this));
             return $this->currentRoute;
         }
         // Trigger event
-        Pure_Dispatcher::getInstance()->trigger('router.next', array('route' => false), $this);
+        $this->app->dispatcher()->fire('router.next', array('route' => false, 'sender' => $this));
         return false;
     }
 
@@ -114,7 +114,7 @@ class Pure_Http_Router {
             'regexp' => '',
             'options' => array_merge(array('sensitive' => false, 'strict' => false, 'basepath' => $basepath), $options)
         );
-        $route['regexp'] = self::pathRegexp($path, $route['keys'], $route['options']['sensitive'], $route['options']['strict']);
+        $route['regexp'] = $this->pathRegexp($path, $route['keys'], $route['options']['sensitive'], $route['options']['strict']);
 
         $route_instance = new Pure_Http_Route($route);
         $this->routes[] = $route_instance;
@@ -129,7 +129,7 @@ class Pure_Http_Router {
         return $method;
     }
 
-    public static function pathRegexp($path, array &$keys, $sensitive = false, $strict = false) {
+    public function pathRegexp($path, array &$keys, $sensitive = false, $strict = false) {
         $pathhash = md5($path . strval($sensitive) . strval($strict));
         if (is_array($path)) {
             $path = '(' . implode('|', $path) . ')';
@@ -137,16 +137,16 @@ class Pure_Http_Router {
 
         $path = (($strict === true) ? $path : (trim($path, '/ ') . '/?'));
         $path = preg_replace('/\/\(/', '(?:/', $path);
-        self::$tmpRegexpData = $keys;
-        $path = preg_replace_callback('/(\/)?(\.)?:(\w+)(?:(\(.*?\)))?(\?)?(\*)?/', array('Pure_Http_Router', 'pathRegexpPregReplaceCallback'), $path);
-        $keys = self::$tmpRegexpData;
-        self::$tmpRegexpData = array();
+        $this->tmpRegexpData = $keys;
+        $path = preg_replace_callback('/(\/)?(\.)?:(\w+)(?:(\(.*?\)))?(\?)?(\*)?/', array($this, '_pathRegexpPregReplaceCallback'), $path);
+        $keys = $this->tmpRegexpData;
+        $this->tmpRegexpData = array();
         $path = preg_replace('/([\/.])/', '\\/', $path);
         $path = preg_replace('/\*/', '(.*)', $path);
         return '/^' . $path . '$/' . ($sensitive ? '' : 'i');
     }
 
-    public static function pathRegexpPregReplaceCallback($matches) {
+    public function _pathRegexpPregReplaceCallback($matches) {
         $slash = (isset($matches[1]) ? $matches[1] : '');
         $format = (isset($matches[2]) ? $matches[2] : false);
         $key = (isset($matches[3]) ? $matches[3] : null);
@@ -154,7 +154,7 @@ class Pure_Http_Router {
         $optional = (isset($matches[5]) ? $matches[5] : false);
         $star = (isset($matches[6]) ? $matches[6] : false);
 
-        array_push(self::$tmpRegexpData, array('name' => $key, 'value' => false, 'optional' => (!!$optional)));
+        array_push($this->tmpRegexpData, array('name' => $key, 'value' => false, 'optional' => (!!$optional)));
 
         return ''
                 . ($optional ? '' : $slash)

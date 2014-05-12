@@ -1,16 +1,10 @@
 <?php
 
-class Pure_Session implements ArrayAccess {
+class Pure_Session extends Pure_Injectable implements ArrayAccess {
 
     protected $name;
     protected $prefix;
     protected $started = false;
-
-    /**
-     *
-     * @var Pure_Session 
-     */
-    protected static $instance = null;
 
     public function __construct($name = 'default', $prefix = 'sess_', $autostart = false) {
         $this->name = $prefix . md5(strtolower($name));
@@ -19,19 +13,8 @@ class Pure_Session implements ArrayAccess {
         }
     }
 
-    /**
-     * 
-     * @return Pure_Session
-     */
-    public static function getInstance() {
-        if (self::$instance == null) {
-            self::$instance = new self();
-        }
-        return self::$instance;
-    }
-
     public function __get($name) {
-        return Pure_V::check($_SESSION, $name, false, null);
+        return $this->app->validator()->check($_SESSION, $name, false, null);
     }
 
     public function get($name) {
@@ -39,9 +22,13 @@ class Pure_Session implements ArrayAccess {
     }
 
     public function getOnce($name) {
-        $val = $_SESSION[$name];
-        unset($_SESSION[$name]);
-        return $val;
+        if (isset($_SESSION[$name])) {
+            $val = $_SESSION[$name];
+            unset($_SESSION[$name]);
+            return $val;
+        } else {
+            return false;
+        }
     }
 
     public function __set($name, $value) {

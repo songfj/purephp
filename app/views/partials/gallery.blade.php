@@ -9,8 +9,8 @@
          data-pager-template="<span></span>"
          data-cycle-slides="> .bg-gallery-item">
 
-        <div class="bg-gallery-item bg-gallery-item-img" style="background-image:url(<?php echo asset('img/gallery/demo1.jpg'); ?>)"></div>
-        <div class="bg-gallery-item bg-gallery-item-img" style="background-image:url(<?php echo asset('img/gallery/demo2.jpg'); ?>)"></div>
+        <div class="bg-gallery-item bg-gallery-item-img" style="background-image:url({{asset('img/gallery/demo1.jpg')}})"></div>
+        <div class="bg-gallery-item bg-gallery-item-img" style="background-image:url({{asset('img/gallery/demo2.jpg')}})"></div>
 
     </div>
     <div class="bg-gallery-overlay"></div>

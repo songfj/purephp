@@ -26,13 +26,3 @@
         </div>
     </div>
 </footer>
-<div id="happycookies" style="display:none">
-    <div class="happycookies-close"><span>OK</span></div>
-    <div class="happycookies-text">
-        We use cookies to enhance your experience in our website. By continuing to visit this site you agree to our use
-        of cookies <a href="#" target="_blank">Learn more</a>
-    </div>
-</div>
-<script src="<?php echo asset('js/app.min.js'); ?>"></script>
-</body>
-</html>

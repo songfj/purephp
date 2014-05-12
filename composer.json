@@ -1,6 +1,6 @@
 {
     "name": "mjolnic/purephp",
-    "description": "A lightweight RESTFul framework with legacy support for PHP 5.2+ . Based on expressjs",
+    "description": "A lightweight RESTFul framework for PHP 5.3.7+",
     "keywords": ["lightweight", "framework", "restful", "express"],
     "license": "MIT",
     "authors": [
@@ -10,13 +10,24 @@
         }
     ],
     "require": {
-        "php": ">=5.3.3"
+        "php": ">=5.3.7",
+        "filp/whoops":"1.1.*",
+        "monolog/monolog":"1.9.*",
+        "ircmaxell/password-compat": "1.0.3",
+        "gabordemooij/redbean": "3.5.*",
+        "illuminate/view": "4.1.*",
+        "swiftmailer/swiftmailer": "5.2.*"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "4.1.*"
     },
     "autoload": {
         "psr-0": {
-            "Pure": "vendor/mjolnic/purephp/",
             "": "app/src/"
         }
+    },
+    "scripts": {
+        
     },
     "config": {
         "preferred-install": "dist"

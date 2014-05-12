@@ -1,4 +1,5 @@
-<?php include 'partials/header.php'; ?>
+@extends('master')
+@section('main')
 
 <div class="main" role="main">
     <div class="container">
@@ -10,4 +11,5 @@
         </div>
     </div>
 </div>
-<?php include 'partials/footer.php'; ?>
+
+@stop

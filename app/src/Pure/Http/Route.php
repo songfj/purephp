@@ -56,7 +56,7 @@ class Pure_Http_Route {
     public $options = array('sensitive' => false, 'strict' => false);
 
     public function __construct(array $data = array()) {
-        $data = Pure_Arr::merge(array(
+        $data = array_merge_recursive_replace(array(
                     'path' => false,
                     'method' => false,
                     'callbacks' => array(),

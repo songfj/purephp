@@ -13,7 +13,7 @@
  * @todo Implement links()
  * @todo Implement locals
  */
-class Pure_Http_Response {
+class Pure_Http_Response extends Pure_Injectable {
 
     /**
      * Current server protocol
@@ -57,7 +57,7 @@ class Pure_Http_Response {
      * Message texts
      * @var array 
      */
-    public static $messages = array(
+    protected static $messages = array(
         //Informational 1xx
         100 => 'Continue',
         101 => 'Switching Protocols',
@@ -107,21 +107,16 @@ class Pure_Http_Response {
         504 => 'Gateway Timeout',
         505 => 'HTTP Version Not Supported'
     );
-    protected static $instance;
 
     public function __construct($serverProtocol = null) {
-        $this->serverProtocol = !empty($serverProtocol) ? $serverProtocol : (isset($_SERVER["SERVER_PROTOCOL"]) ? $_SERVER["SERVER_PROTOCOL"] : 'HTTP/1.1');
+        $this->serverProtocol = $serverProtocol;
     }
 
-    /**
-     * 
-     * @return Pure_Http_Response
-     */
-    public static function getInstance() {
-        if (self::$instance == null) {
-            self::$instance = new self();
+    public function setApp(\Pure_App $app) {
+        parent::setApp($app);
+        if (empty($this->serverProtocol)) {
+            $this->serverProtocol = $this->app->server('SERVER_PROTOCOL', 'HTTP/1.1');
         }
-        return self::$instance;
     }
 
     /**
@@ -202,7 +197,7 @@ class Pure_Http_Response {
 
         if (isset($this->cookies[$name])) {
             foreach ($this->cookies[$name] as $i => $o) {
-                if (($o["path"] === $options["path"]) and ($o["domain"] === $options["domain"]) and ($o["secure"] === $options["secure"]) and ($o["httponly"] === $options["httponly"])) {
+                if (($o["path"] === $options["path"]) and ( $o["domain"] === $options["domain"]) and ( $o["secure"] === $options["secure"]) and ( $o["httponly"] === $options["httponly"])) {
                     unset($this->cookies[$name][$i]);
                 }
             }
@@ -238,7 +233,7 @@ class Pure_Http_Response {
         $this->header("Content-Length", strlen($this->body));
 
         // Trigger event
-        Pure_Dispatcher::getInstance()->trigger('response.before_send', array(), $this);
+        $this->app->dispatcher()->fire('response.before_send', array('sender' => $this));
 
         $this->sendStatusHeader($this->status)
                 ->sendHeaders()
@@ -249,7 +244,7 @@ class Pure_Http_Response {
         }
 
         // Trigger event
-        Pure_Dispatcher::getInstance()->trigger('response.send', array(), $this);
+        $this->app->dispatcher()->fire('response.send', array('sender' => $this));
 
         return $this;
     }
@@ -259,7 +254,7 @@ class Pure_Http_Response {
             $this->body = $body;
         }
 
-        if (!is_array($this->body) and !is_object($this->body)) {
+        if (!is_array($this->body) and ! is_object($this->body)) {
             $this->body = array('content' => $this->body);
         }
 

@@ -1,5 +1,5 @@
-<?php include 'partials/header.php'; ?>
-<?php include 'partials/gallery.php'; ?>
+@extends('master')
+@section('main')
 
 <div class="main" role="main">
     <div class="container">
@@ -8,7 +8,7 @@
             <h1>PurePHP</h1>
             <p>This is a template for a simple marketing or informational website. It includes a large callout called the hero unit and three supporting pieces of content. Use it as a starting point to create something more unique.</p>
             <p class="al-c">
-                <a class="btn btn-lg btn-primary" href="https://github.com/mjolnic/purephp" role="button">View Github repository &raquo;</a>
+                <a class="btn btn-lg btn-primary" href="https://github.com/mjolnic/purephp" target="_blank" role="button">View Github repository &raquo;</a>
             </p>
         </div>
 
@@ -29,4 +29,4 @@
     </div>
 </div>
 
-<?php include 'partials/footer.php'; ?>
+@stop

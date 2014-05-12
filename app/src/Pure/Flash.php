@@ -3,7 +3,7 @@
 /**
  * Simple session flash message logging
  */
-class Pure_Flash {
+class Pure_Flash extends Pure_Injectable {
 
     /**
      *
@@ -23,31 +23,13 @@ class Pure_Flash {
      */
     protected $session_prefix;
 
-    /**
-     *
-     * @var Pure_Flash 
-     */
-    protected static $instance = null;
-
     public function __construct(Pure_Session $session, $channel = "default") {
         $this->session = $session;
         $this->channel = $channel;
         $this->session_prefix = '_' . get_class($this) . '_';
-        if(!isset($this->session[$this->session_prefix . $this->channel])){
+        if (!isset($this->session[$this->session_prefix . $this->channel])) {
             $this->session[$this->session_prefix . $this->channel] = array();
         }
-    }
-
-    /**
-     * 
-     * @param Pure_Session $session
-     * @return Pure_Flash
-     */
-    public static function getInstance(Pure_Session $session) {
-        if (self::$instance == null) {
-            self::$instance = new self($session);
-        }
-        return self::$instance;
     }
 
     /**
@@ -74,8 +56,7 @@ class Pure_Flash {
     }
 
     public function hasMessages() {
-        return is_array($this->session[$this->session_prefix . $this->channel]) and
-                (count($this->session[$this->session_prefix . $this->channel]) > 0);
+        return is_array($this->session[$this->session_prefix . $this->channel]) and ( count($this->session[$this->session_prefix . $this->channel]) > 0);
     }
 
     public function clearMessages() {
