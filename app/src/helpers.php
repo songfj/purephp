@@ -75,7 +75,7 @@ function storage_path($to = '') {
  * Generate a URL for an asset, using the content url as the base url
  * @param string $path
  */
-function asset($path) {
+function asset($path = '') {
     return Pure_Facade::url('content') . ltrim($path, '/');
 }
 
