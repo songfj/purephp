@@ -1,6 +1,6 @@
 {
     "name": "mjolnic/purephp",
-    "description": "A lightweight RESTFul framework for PHP 5.3.3+",
+    "description": "A lightweight RESTFul framework for PHP 5.3.7+",
     "keywords": ["lightweight", "framework", "restful", "express"],
     "license": "MIT",
     "authors": [
@@ -10,7 +10,7 @@
         }
     ],
     "require": {
-        "php": ">=5.3.3",
+        "php": ">=5.3.7",
         "filp/whoops":"1.1.*",
         "monolog/monolog":"1.9.*",
         "ircmaxell/password-compat": "1.0.3",
