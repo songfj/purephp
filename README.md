@@ -2,9 +2,10 @@
 
 **A mini RESTFul framework for PHP 5.3.7+**
 
-    Originally PurePHP was thought for PHP 5.2 support in mind __always__, but everyday
+    Originally PurePHP was thought for PHP 5.2 support in mind ALWAYS, but everyday
     the 5.3 adoption becomes faster, so I am discontinuing the PHP 5.2 support.
-    If you are still interested there is a (unmaintained) php5.2 branch.
+    If you are still interested there is a (unmaintained) php5.2 branch or download
+    the v1.0.0 release.
 
 PurePHP is very suitable for small projects that doesn't require all the features
 that other frameworks (like Laravel) have. A very small core and few dependencies
